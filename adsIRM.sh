@@ -26,7 +26,7 @@ export RASPA_DIR="/ihome/cwilmer/jag227/RASPA-2.0"
 		
 		cp simulation.input sim$i.input
 		mv sim$i.input inputs
-		sh run
+		./run.sh
 		mkdir Out$i
 		cp -r Output Out$i
 		mv Out$i outputs/
