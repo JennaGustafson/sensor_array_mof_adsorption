@@ -13,8 +13,9 @@ sed -i "42 s/[0-9]*\.[0-9]*/$N2_COMP/" simulation.input
 sed -i "53 s/[0-9]*\.[0-9]*/$C2H6_COMP/" simulation.input
 
 cp simulation.input sim_${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}.input
-mv sim${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}.input inputs
-./run.sh
-mkdir Out${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}
-cp -r Output Out${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}
-mv Out${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP} outputs/
+mv sim_${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}.input inputs
+#./run.sh
+simulate simulation.input
+mkdir Out_${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}
+cp -r Output Out_${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}
+mv Out_${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP} outputs/
