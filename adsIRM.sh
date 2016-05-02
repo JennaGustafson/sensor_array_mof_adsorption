@@ -25,12 +25,12 @@ export RASPA_DIR="/ihome/cwilmer/jag227/RASPA-2.0"
 		then
 			grep Aver.*load Output/System_0/*00.data | awk NR==3 > co2IRMOF-1P1.txt
 			grep Aver.*load Output/System_0/*00.data | awk NR==13 > ch4IRMOF-1P1.txt
-               		grep Aver.*load Output/System_0/*00.data | awk NR==23 > n2IRMOF-1P1.txt
-               		grep Aver.*load Output/System_0/*00.data | awk NR==33 > c2h6IRMOF-1P1.txt
+      grep Aver.*load Output/System_0/*00.data | awk NR==23 > n2IRMOF-1P1.txt
+      grep Aver.*load Output/System_0/*00.data | awk NR==33 > c2h6IRMOF-1P1.txt
 			grep Aver.*load Output/System_0/*6.data | awk NR==3 > co2IRMOF-1P10.txt
-                        grep Aver.*load Output/System_0/*6.data | awk NR==13 > ch4IRMOF-1P10.txt
-                        grep Aver.*load Output/System_0/*6.data | awk NR==23 > n2IRMOF-1P10.txt
-                        grep Aver.*load Output/System_0/*6.data | awk NR==33 > c2h6IRMOF-1P10.txt
+      grep Aver.*load Output/System_0/*6.data | awk NR==13 > ch4IRMOF-1P10.txt
+      grep Aver.*load Output/System_0/*6.data | awk NR==23 > n2IRMOF-1P10.txt
+      grep Aver.*load Output/System_0/*6.data | awk NR==33 > c2h6IRMOF-1P10.txt
 
 		else
 
@@ -39,8 +39,8 @@ export RASPA_DIR="/ihome/cwilmer/jag227/RASPA-2.0"
 			grep Aver.*load Output/System_0/*00.data | awk NR==23 >> n2IRMOF-1P1.txt
 			grep Aver.*load Output/System_0/*00.data | awk NR==33 >> c2h6IRMOF-1P1.txt
 			grep Aver.*load Output/System_0/*6.data | awk NR==3 >> co2IRMOF-1P10.txt
-                	grep Aver.*load Output/System_0/*6.data | awk NR==13 >> ch4IRMOF-1P10.txt
-                	grep Aver.*load Output/System_0/*6.data | awk NR==23 >> n2IRMOF-1P10.txt
-	       		grep Aver.*load Output/System_0/*6.data | awk NR==33 >> c2h6IRMOF-1P10.txt
+      grep Aver.*load Output/System_0/*6.data | awk NR==13 >> ch4IRMOF-1P10.txt
+      grep Aver.*load Output/System_0/*6.data | awk NR==23 >> n2IRMOF-1P10.txt
+	    grep Aver.*load Output/System_0/*6.data | awk NR==33 >> c2h6IRMOF-1P10.txt
 		fi
 	done
