@@ -26,4 +26,4 @@ mkdir Out_${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}
 cp -r Output Out_${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP}
 mv Out_${CO2_COMP}_${CH4_COMP}_${N2_COMP}_${C2H6_COMP} outputs/
 
-echo $mass_p1 $mass_p2
+echo $MOF$'\t'$N2_COMP$'\t'$CH4_COMP$'\t'$CO2_COMP$'\t'$C2H6_COMP$'\t'$mass_p1$'\t'$mass_p2 >> comp_mass_output.csv

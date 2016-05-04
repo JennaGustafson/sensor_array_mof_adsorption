@@ -20,6 +20,10 @@ mofs = read_mof_configuration('mofs.csv')
 print(compositions)
 print(mofs)
 
+with open('comp_mass_output.csv','w',newline='') as f:
+    writer = csv.writer(f, delimiter='\t')
+    writer.writerow(['MOF','CO2','CH4','N2','C2H6','Mass 1bar','Mass 10bar'])
+
 for mof in mofs:
     for composition in compositions:
         subprocess.run(["./run_adsorption.sh",composition['CO2'],composition['CH4'],composition['N2'],composition['C2H6'],mof])
