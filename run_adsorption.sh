@@ -1,8 +1,8 @@
 #!/bin/bash
 
-CO2_COMP=$1
-CH4_COMP=$2
 N2_COMP=$3
+CH4_COMP=$2
+CO2_COMP=$1
 C2H6_COMP=$4
 MOF=$5
 
