@@ -1,0 +1,7 @@
+simulation.input
+Output/
+VTK/
+Movies/
+Restart/
+inputs/
+outputs/

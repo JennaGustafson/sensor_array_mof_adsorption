@@ -9,7 +9,7 @@ Forcefield                    GenericMOFs
 EwaldPrecision                1e-6
 
 Framework 0
-FrameworkName IRMOF-1
+FrameworkName MOF
 UnitCells 1 1 1
 HeliumVoidFraction 0.81
 ExternalTemperature 298.0
@@ -39,7 +39,7 @@ Component 1 MoleculeName               methane
 
 Component 2 MoleculeName               N2
             MoleculeDefinition         TraPPE
-            MolFraction                0.9
+            MolFraction                0.0
             TranslationProbability     0.5
             RegrowProbability          0.5
             IdentityChangeProbability  1.0
@@ -50,7 +50,7 @@ Component 2 MoleculeName               N2
 
 Component 3 MoleculeName               ethane
             MoleculeDefinition         TraPPE
-            MolFraction                0.1
+            MolFraction                0.0
             TranslationProbability     0.5
             RegrowProbability          0.5
             IdentityChangeProbability  1.0
@@ -58,4 +58,3 @@ Component 3 MoleculeName               ethane
               IdentityChangesList      0 1
             SwapProbability            1.0
             CreateNumberOfMolecules    0
-
