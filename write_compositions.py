@@ -2,8 +2,10 @@
 
 #read in csv file with gas compositions
 #read in csv file with mofs
+import sys
 import csv
 import subprocess
+
 import sensor_array_mof_adsorption_simulation
 
 def read_mof_configuration(filename):
@@ -15,8 +17,12 @@ def read_composition_configuration(filename):
         comp_reader = csv.DictReader(csvfile, delimiter="\t")
         return list(comp_reader)
 
-compositions = read_composition_configuration('comps.csv')
-mofs = read_mof_configuration('mofs.csv')
+
+mofs_filepath = sys.argv[1]
+gas_comps_filepath = sys.argv[2]
+
+compositions = read_composition_configuration(gas_comps_filepath)
+mofs = read_mof_configuration(mofs_filepath)
 
 print(compositions)
 print(mofs)
