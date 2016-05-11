@@ -5,3 +5,5 @@ Movies/
 Restart/
 inputs/
 outputs/
+__pycache__
+archive
