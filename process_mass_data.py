@@ -1,0 +1,89 @@
+import numpy as np
+import scipy.stats as ss
+from matplotlib import pyplot as plt
+from math import isnan
+from scipy.spatial import Delaunay
+import scipy.interpolate as si
+import csv
+import random
+plt.close('all')
+#
+def mof_density(filename):
+    with open(filename,newline='') as csvfile:
+        density = csv.DictReader(csvfile, delimiter="\t")
+        return list(density)
+def read_output_data(filename):
+    with open(filename,newline='') as csvfile:
+        output_data = csv.DictReader(csvfile, delimiter="\t")
+        return list(output_data)
+def mof_names(filename):
+    with open(filename,newline='') as csvf:
+        names = csv.reader(csvf,delimiter='\n')
+        return list(names)
+#
+mof_densities = mof_density('MOF_Density.csv')
+all_results = read_output_data('comp_mass_output.csv')
+mofs = mof_names('mofs.csv')
+mof_experimental_mass = mof_density('MOF_ExperimentalMass.csv')
+#
+results = []
+num_mixtures = 10
+r = .05
+stdev = 0.1
+for mof in mofs:
+    masses = [float(mof_densities[0][row['MOF']])*float(row['Mass 1bar']) for row in all_results if [row['MOF']] == mof]
+    comps = [[float(row['CH4']),float(row['CO2']),float(row['C2H6'])] for row in all_results if [row['MOF']] == mof]
+    d = Delaunay(comps)
+    interp_dat = si.LinearNDInterpolator(d,masses)
+    while (len(comps) < 78+num_mixtures):
+        random_gas = ([0.5*round(random.random(),3),0.5*round(random.random(),3),0.2*round(random.random(),3)])
+        predicted_mass = interp_dat(random_gas)
+        if sum(random_gas) <= 1 and not isnan(predicted_mass):
+            comps.append(random_gas)
+            masses.extend(predicted_mass)
+    probs = [(ss.norm.cdf(mass+r, float(mof_experimental_mass[0][str(mof).strip('\'[]\'')]),
+                          stdev*float(mof_experimental_mass[0][str(mof).strip('\'[]\'')])) -
+              ss.norm.cdf(mass-r, float(mof_experimental_mass[0][str(mof).strip('\'[]\'')]),
+                          stdev*float(mof_experimental_mass[0][str(mof).strip('\'[]\'')]))) for mass in masses]
+    norm_probs = [(i/sum(probs)) for i in probs]
+    comps_mass_prob = np.column_stack((comps,masses,norm_probs))
+    results.extend([{'mof': mof, 'CH4': row[0], 'CO2': row[1], 'C2H6': row[2], 'N2' : 1-(row[0]+row[1]+row[2]),
+                     'Mass 1bar' : row[3], 'PMF 1bar' : row[4]} for row in comps_mass_prob])
+#
+bins = []
+new = np.array([[i['CO2'],i['C2H6'],i['CH4'],i['N2']] for i in results])
+bin_range = np.column_stack((np.linspace(min(new[:,0]),max(new[:,0]),12),
+                             np.linspace(min(new[:,1]),max(new[:,1]),12),
+                             np.linspace(min(new[:,2]),max(new[:,2]),12),
+                             np.linspace(min(new[:,3]),max(new[:,3]),12)))
+bins.extend([{'CO2' : row[0], 'C2H6' : row[1], 'CH4' : row[2], 'N2' : row[3]} for row in bin_range])
+#
+binned_data =[]
+binned_probability = []
+def bin_compositions(gas_name,mof):
+    binned_data =[]
+    binned_probability = []
+    for row in results:
+         for i in range(1,len(bins)):
+            if row[gas_name]>=bins[i-1][gas_name] and row[gas_name]<bins[i][gas_name]:
+                binned_data.append({'probability': row['PMF 1bar'], 'bin': bins[i-1][gas_name]})
+    for b in bins:
+        average = []
+        for line in binned_data:
+             if b[gas_name] == line['bin']:
+                average.append(line['probability'])
+        if average == []:
+            binned_probability.append({'mof' : mof, 'bin' : line['bin'], 'average probability' : 0})
+        else:
+            binned_probability.append({'mof' : mof, 'bin' : line['bin'], 'average probability' : np.mean(average)})
+    return(binned_probability)
+#
+def plot_binned_pmf(gas_name,mof_name):
+    bins_new = bin_compositions(gas_name,mof_name)
+    plot_PMF = plt.figure()
+    plt.plot([b[gas_name] for b in bins],[point['average probability'] for point in bins_new],'ro')
+    plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , str(mof_name)))
+    plt.close(plot_PMF)
+#
+plot_binned_pmf('CO2','IRMOF-1')
+#
