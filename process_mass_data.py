@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 import scipy.stats as ss
 from matplotlib import pyplot as plt
@@ -22,7 +24,7 @@ def mof_names(filename):
         return list(names)
 #
 mof_densities = mof_density('MOF_Density.csv')
-all_results = read_output_data('comp_mass_output.csv')
+all_results = read_output_data('comp_mass_output_tmp.csv')
 mofs = mof_names('mofs.csv')
 mof_experimental_mass = mof_density('MOF_ExperimentalMass.csv')
 #
