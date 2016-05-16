@@ -7,13 +7,13 @@ from math import isnan
 from scipy.spatial import Delaunay
 import scipy.interpolate as si
 import csv
-import random
+from random import random
 plt.close('all')
 #
 def mof_density(filename):
     with open(filename,newline='') as csvfile:
         density = csv.DictReader(csvfile, delimiter="\t")
-        return list(density)
+        return list(density)[0]
 def read_output_data(filename):
     with open(filename,newline='') as csvfile:
         output_data = csv.DictReader(csvfile, delimiter="\t")
@@ -25,7 +25,7 @@ def mof_names(filename):
 #
 mof_densities = mof_density('MOF_Density.csv')
 all_results = read_output_data('comp_mass_output_tmp.csv')
-mofs = mof_names('mofs.csv')
+mofs = [row[0] for row in mof_names('mofs.csv')]
 mof_experimental_mass = mof_density('MOF_ExperimentalMass.csv')
 #
 results = []
@@ -33,31 +33,31 @@ num_mixtures = 10
 r = .05
 stdev = 0.1
 for mof in mofs:
-    masses = [float(mof_densities[0][row['MOF']])*float(row['Mass 1bar']) for row in all_results if [row['MOF']] == mof]
-    comps = [[float(row['CH4']),float(row['CO2']),float(row['C2H6'])] for row in all_results if [row['MOF']] == mof]
+    masses = [float(mof_densities[row['MOF']])*float(row['Mass 1bar']) for row in all_results if row['MOF'] == mof]
+    comps = [[float(row['CH4']),float(row['CO2']),float(row['C2H6'])] for row in all_results if row['MOF'] == mof]
     d = Delaunay(comps)
     interp_dat = si.LinearNDInterpolator(d,masses)
     while (len(comps) < 78+num_mixtures):
-        random_gas = ([0.5*round(random.random(),3),0.5*round(random.random(),3),0.2*round(random.random(),3)])
+        random_gas = ([0.5*round(random(),3),0.5*round(random(),3),0.2*round(random(),3)])
         predicted_mass = interp_dat(random_gas)
         if sum(random_gas) <= 1 and not isnan(predicted_mass):
             comps.append(random_gas)
             masses.extend(predicted_mass)
-    probs = [(ss.norm.cdf(mass+r, float(mof_experimental_mass[0][str(mof).strip('\'[]\'')]),
-                          stdev*float(mof_experimental_mass[0][str(mof).strip('\'[]\'')])) -
-              ss.norm.cdf(mass-r, float(mof_experimental_mass[0][str(mof).strip('\'[]\'')]),
-                          stdev*float(mof_experimental_mass[0][str(mof).strip('\'[]\'')]))) for mass in masses]
+    probs = [(ss.norm.cdf(mass+r, float(mof_experimental_mass[mof]),
+                          stdev*float(mof_experimental_mass[mof])) -
+              ss.norm.cdf(mass-r, float(mof_experimental_mass[mof]),
+                          stdev*float(mof_experimental_mass[mof]))) for mass in masses]
     norm_probs = [(i/sum(probs)) for i in probs]
     comps_mass_prob = np.column_stack((comps,masses,norm_probs))
     results.extend([{'mof': mof, 'CH4': row[0], 'CO2': row[1], 'C2H6': row[2], 'N2' : 1-(row[0]+row[1]+row[2]),
                      'Mass 1bar' : row[3], 'PMF 1bar' : row[4]} for row in comps_mass_prob])
 #
 bins = []
-new = np.array([[i['CO2'],i['C2H6'],i['CH4'],i['N2']] for i in results])
-bin_range = np.column_stack((np.linspace(min(new[:,0]),max(new[:,0]),12),
-                             np.linspace(min(new[:,1]),max(new[:,1]),12),
-                             np.linspace(min(new[:,2]),max(new[:,2]),12),
-                             np.linspace(min(new[:,3]),max(new[:,3]),12)))
+comps_array = np.array([[i['CO2'],i['C2H6'],i['CH4'],i['N2']] for i in results])
+bin_range = np.column_stack((np.linspace(min(comps_array[:,0]),max(comps_array[:,0]),12),
+                             np.linspace(min(comps_array[:,1]),max(comps_array[:,1]),12),
+                             np.linspace(min(comps_array[:,2]),max(comps_array[:,2]),12),
+                             np.linspace(min(comps_array[:,3]),max(comps_array[:,3]),12)))
 bins.extend([{'CO2' : row[0], 'C2H6' : row[1], 'CH4' : row[2], 'N2' : row[3]} for row in bin_range])
 #
 binned_data =[]
