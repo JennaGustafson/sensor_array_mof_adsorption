@@ -87,5 +87,7 @@ def plot_binned_pmf(gas_name,mof_name):
     plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , str(mof_name)))
     plt.close(plot_PMF)
 #
-plot_binned_pmf('CO2','IRMOF-1')
+for mof in mofs:
+    for gas in ['N2','CH4','CO2','C2H6']:
+        plot_binned_pmf(gas,mof)
 #
