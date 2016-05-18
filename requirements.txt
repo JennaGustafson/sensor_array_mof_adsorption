@@ -1,1 +1,1 @@
-git+https://github.com/WilmerLab/raspa2.git
+git+https://github.com/JennaGustafson/raspa2.git
