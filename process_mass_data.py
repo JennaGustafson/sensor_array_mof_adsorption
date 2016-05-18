@@ -96,10 +96,10 @@ def plot_binned_pmf_array(gas_name,mof_names):
             compound_pmfs *= np.array([point['average probability'] for point in bin_compositions(gas_name,mof)])
         print(compound_pmfs)
     print(len(compound_pmfs))
-    # plot_PMF = plt.figure()
-    # plt.plot([b[gas_name] for b in bins],[point for point in compound_pmfs],'bo')
-    # plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , str(mof_names)))
-    # plt.close(plot_PMF)
+    plot_PMF = plt.figure()
+    plt.plot([b[gas_name] for b in bins],[point for point in compound_pmfs],'bo')
+    plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , str(mof_names)))
+    plt.close(plot_PMF)
 
 names = ['IRMOF-1','HKUST-1']
 plot_binned_pmf_array('CH4',names)
