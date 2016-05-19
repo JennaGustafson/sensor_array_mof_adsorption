@@ -105,8 +105,9 @@ def plot_binned_pmf_array(gas_names,mof_names,bin_compositions_results,create_bi
                 compound_pmfs = np.array([point['average probability'] for point in bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
             else:
                 compound_pmfs *= np.array([point['average probability'] for point in bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
+        normalized_compound_pmfs = [number/sum(compound_pmfs) for number in compound_pmfs]
         plot_PMF = plt.figure()
-        plt.plot([b[gas_name] for b in create_bins_results],[point for point in compound_pmfs],'bo')
+        plt.plot([b[gas_name] for b in create_bins_results],[point for point in normalized_compound_pmfs],'bo')
         plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , "_".join(mof_names)))
         plt.close(plot_PMF)
 
