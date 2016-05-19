@@ -35,7 +35,6 @@ stdev = 0.1
 def interpolate_pmf(mofs_list,all_results,experimental_mass,mof_densities):
     pmf_results = []
     for mof in mofs_list:
-        print(mof)
         masses = [float(mof_densities[row['MOF']])*float(row['Mass 1bar']) for row in all_results if row['MOF'] == mof]
         comps = [[float(row['CH4']),float(row['CO2']),float(row['C2H6'])] for row in all_results if row['MOF'] == mof]
         d = Delaunay(comps)
@@ -67,13 +66,14 @@ def create_bins(interpolate_pmf_results):
     return(bins)
 #
 def bin_compositions(gases,mof_array,create_bins_results,interpolate_pmf_results):
-    binned_data =[]
     binned_probability = []
     for mof_name in mof_array:
         for gas_name in gases:
+            binned_data =[]
+            binned_probability_temporary = []
             for row in interpolate_pmf_results:
                  for i in range(1,len(create_bins_results)):
-                    if row[gas_name]>=create_bins_results[i-1][gas_name] and row[gas_name]<create_bins_results[i][gas_name]:
+                    if row[gas_name]>=create_bins_results[i-1][gas_name] and row[gas_name]<create_bins_results[i][gas_name] and row['mof'] == mof_name:
                         binned_data.append({'probability': row['PMF 1bar'], 'bin': create_bins_results[i-1][gas_name]})
             for b in create_bins_results:
                 average = []
@@ -81,9 +81,13 @@ def bin_compositions(gases,mof_array,create_bins_results,interpolate_pmf_results
                      if b[gas_name] == line['bin']:
                         average.append(line['probability'])
                 if average == []:
-                    binned_probability.append({'mof' : mof_name, 'gas' : gas_name, 'bin' : line['bin'], 'average probability' : 0})
+                    binned_probability_temporary.append({'bin' : line['bin'], 'average probability' : 0})
                 else:
-                    binned_probability.append({'mof' : mof_name, 'gas' : gas_name, 'bin' : line['bin'], 'average probability' : np.mean(average)})
+                    binned_probability_temporary.append({'bin' : line['bin'], 'average probability' : np.mean(average)})
+            temporary_pmf_list = [row['average probability'] for row in binned_probability_temporary]
+            normalized_temporary_pmf = [number/sum(temporary_pmf_list) for number in temporary_pmf_list]
+            binned_probability.extend([{'mof' : mof_name, 'gas' : gas_name, 'bin' : binned_probability_temporary[i]['bin'],
+                    'average probability' : normalized_temporary_pmf[i]} for i in range(0,len(normalized_temporary_pmf))])
     return(binned_probability)
 #
 def plot_binned_pmf(gas_name,mof_name):
@@ -107,7 +111,7 @@ def plot_binned_pmf_array(gas_names,mof_names,bin_compositions_results,create_bi
         plt.close(plot_PMF)
 
 gases = ['N2','CH4','CO2','C2H6']
-mof_array = ['IRMOF-1','HKUST-1']
+mof_array = ['IRMOF-1','HKUST-1','NU-125']
 interpolate_pmf_results = interpolate_pmf(mofs_import,all_results_import,mof_experimental_mass,mof_densities_import)
 create_bins_results = create_bins(interpolate_pmf_results)
 bin_compositions_results = bin_compositions(gases,mof_array,create_bins_results,interpolate_pmf_results)
