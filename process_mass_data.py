@@ -23,21 +23,21 @@ def mof_names(filename):
         names = csv.reader(csvf,delimiter='\n')
         return list(names)
 #
-mof_densities = mof_density('MOF_Density.csv')
-all_results = read_output_data('comp_mass_output_tmp.csv')
-mofs = [row[0] for row in mof_names('mofs.csv')]
+mof_densities_import = mof_density('MOF_Density.csv')
+all_results_import = read_output_data('comp_mass_output_tmp.csv')
+mofs_import = [row[0] for row in mof_names('mofs.csv')]
 mof_experimental_mass = mof_density('MOF_ExperimentalMass.csv')
 #
-results = []
 num_mixtures = 10
 r = .05
 stdev = 0.1
 #
-def interpolate_pmf(mofs,results,experimental_mass,mof_densities):
-    for mof in mofs:
+def interpolate_pmf(mofs_list,all_results,experimental_mass,mof_densities):
+    pmf_results = []
+    for mof in mofs_list:
         print(mof)
-        masses = [float(mof_densities[row['MOF']])*float(row['Mass 1bar']) for row in results if row['MOF'] == mof]
-        comps = [[float(row['CH4']),float(row['CO2']),float(row['C2H6'])] for row in results if row['MOF'] == mof]
+        masses = [float(mof_densities[row['MOF']])*float(row['Mass 1bar']) for row in all_results if row['MOF'] == mof]
+        comps = [[float(row['CH4']),float(row['CO2']),float(row['C2H6'])] for row in all_results if row['MOF'] == mof]
         d = Delaunay(comps)
         interp_dat = si.LinearNDInterpolator(d,masses)
         while (len(comps) < 78+num_mixtures):
@@ -52,9 +52,9 @@ def interpolate_pmf(mofs,results,experimental_mass,mof_densities):
                               stdev*float(experimental_mass[mof]))) for mass in masses]
         norm_probs = [(i/sum(probs)) for i in probs]
         comps_mass_prob = np.column_stack((comps,masses,norm_probs))
-        results.extend([{'mof': mof, 'CH4': row[0], 'CO2': row[1], 'C2H6': row[2], 'N2' : 1-(row[0]+row[1]+row[2]),
+        pmf_results.extend([{'mof': mof, 'CH4': row[0], 'CO2': row[1], 'C2H6': row[2], 'N2' : 1-(row[0]+row[1]+row[2]),
                          'Mass 1bar' : row[3], 'PMF 1bar' : row[4]} for row in comps_mass_prob])
-    return(results)
+    return(pmf_results)
 #
 def create_bins(interpolate_pmf_results):
     bins = []
@@ -81,9 +81,9 @@ def bin_compositions(gases,mof_array,create_bins_results,interpolate_pmf_results
                      if b[gas_name] == line['bin']:
                         average.append(line['probability'])
                 if average == []:
-                    binned_probability.append({'mof' : mof, 'gas' : gas_name, 'bin' : line['bin'], 'average probability' : 0})
+                    binned_probability.append({'mof' : mof_name, 'gas' : gas_name, 'bin' : line['bin'], 'average probability' : 0})
                 else:
-                    binned_probability.append({'mof' : mof, 'gas' : gas_name, 'bin' : line['bin'], 'average probability' : np.mean(average)})
+                    binned_probability.append({'mof' : mof_name, 'gas' : gas_name, 'bin' : line['bin'], 'average probability' : np.mean(average)})
     return(binned_probability)
 #
 def plot_binned_pmf(gas_name,mof_name):
@@ -101,8 +101,6 @@ def plot_binned_pmf_array(gas_names,mof_names,bin_compositions_results,create_bi
                 compound_pmfs = np.array([point['average probability'] for point in bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
             else:
                 compound_pmfs *= np.array([point['average probability'] for point in bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
-            print(compound_pmfs)
-        print(len(compound_pmfs))
         plot_PMF = plt.figure()
         plt.plot([b[gas_name] for b in create_bins_results],[point for point in compound_pmfs],'bo')
         plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , "_".join(mof_names)))
@@ -110,7 +108,7 @@ def plot_binned_pmf_array(gas_names,mof_names,bin_compositions_results,create_bi
 
 gases = ['N2','CH4','CO2','C2H6']
 mof_array = ['IRMOF-1','HKUST-1']
-interpolate_pmf_results = interpolate_pmf(mofs,all_results,mof_experimental_mass,mof_densities)
+interpolate_pmf_results = interpolate_pmf(mofs_import,all_results_import,mof_experimental_mass,mof_densities_import)
 create_bins_results = create_bins(interpolate_pmf_results)
 bin_compositions_results = bin_compositions(gases,mof_array,create_bins_results,interpolate_pmf_results)
 plot_binned_pmf_array(gases,mof_array,bin_compositions_results,create_bins_results)
