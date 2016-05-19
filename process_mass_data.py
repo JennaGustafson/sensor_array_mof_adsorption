@@ -88,13 +88,6 @@ def bin_compositions(gases,mof_array,create_bins_results,interpolate_pmf_results
                     'average probability' : normalized_temporary_pmf[i]} for i in range(0,len(normalized_temporary_pmf))])     #for each bin with averaged/normalized pmf
     return(binned_probability)
 #
-def plot_binned_pmf(gas_name,mof_name):
-    bins_new = bin_compositions(gas_name,mof_name)
-    plot_PMF = plt.figure()
-    plt.plot([b[gas_name] for b in bins],[point['average probability'] for point in bins_new],'ro')
-    plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , str(mof_name)))
-    plt.close(plot_PMF)
-#
 def plot_binned_pmf_array(gas_names,mof_names,bin_compositions_results,create_bins_results):    #function compounds pmfs for mof array and plots results each array/gas
     for gas_name in gas_names:
         compound_pmfs = []
