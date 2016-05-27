@@ -4,3 +4,4 @@ matplotlib
 scipy.stats
 scipy.spatial
 scipy.interpolate
+yaml
