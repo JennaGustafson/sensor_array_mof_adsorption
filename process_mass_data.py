@@ -35,11 +35,6 @@ def mof_names(filename):
         names = csv.reader(csvf,delimiter='\n')
         return list(names)
 
-
-# num_mixtures = 10 #specify how many *additional* mixtures one wants in the analysis (to be interpolated)
-# r = .05           #the range for which the pmf is calculated, (cdf mass+r minus cdf mass-r)
-# stdev = 0.1       #standard deviation of the  experimental masses for normal distribution curves
-
 def interpolate_pmf(mofs_list, all_results, experimental_mass, mof_densities):
     """Creates additional gas mixtures and calculates probability mass functions (pmf) for all mass values.
 
@@ -70,9 +65,9 @@ def interpolate_pmf(mofs_list, all_results, experimental_mass, mof_densities):
                 masses.extend(predicted_mass)
 
         # Calculates all pmfs based on the experimental mass and normal probability distribution.
-        probs = [(ss.norm.cdf(mass + r, float(experimental_mass[mof]),
+        probs = [(ss.norm.cdf(mass + mrange, float(experimental_mass[mof]),
                               stdev * float(experimental_mass[mof])) -
-                  ss.norm.cdf(mass - r, float(experimental_mass[mof]),
+                  ss.norm.cdf(mass - mrange, float(experimental_mass[mof]),
                               stdev * float(experimental_mass[mof]))) for mass in masses]
         norm_probs = [(i / sum(probs)) for i in probs]
 
