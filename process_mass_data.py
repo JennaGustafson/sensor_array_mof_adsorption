@@ -8,18 +8,12 @@ from math import isnan
 import csv
 from random import random
 
+import yaml
 import numpy as np
 from matplotlib import pyplot as plt
 import scipy.stats as ss
 from scipy.spatial import Delaunay
 import scipy.interpolate as si
-
-# Function imports a tab delimited csv file as dictionary
-
-def mof_density(filename):
-    with open(filename, newline='') as csvfile:
-        density = csv.DictReader(csvfile, delimiter="\t")
-        return list(density)[0]
 
 # Function imports csv file as a dictionary
 
@@ -28,14 +22,12 @@ def read_output_data(filename):
         output_data = csv.DictReader(csvfile, delimiter="\t")
         return list(output_data)
 
-# Reads in csvfile as a list
+def yaml_loader(filepath):
+    with open(filepath, 'r') as yaml_file:
+        data = yaml.load(yaml_file)
+    return(data)
 
-def mof_names(filename):
-    with open(filename,newline='') as csvf:
-        names = csv.reader(csvf,delimiter='\n')
-        return list(names)
-
-def interpolate_pmf(mofs_list, all_results, experimental_mass, mof_densities):
+def interpolate_pmf(mofs_list, all_results, experimental_mass, mof_densities, num_mixtures, stdev, mrange):
     """Creates additional gas mixtures and calculates probability mass functions (pmf) for all mass values.
 
     Keyword arguments:
