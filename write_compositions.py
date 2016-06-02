@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-#read in csv file with gas compositions
-#read in csv file with mofs
 import sys
 import csv
-import subprocess
 
 import sensor_array_mof_adsorption_simulation
 
@@ -23,9 +20,6 @@ gas_comps_filepath = sys.argv[2]
 
 compositions = read_composition_configuration(gas_comps_filepath)
 mofs = read_mof_configuration(mofs_filepath)
-
-print(compositions)
-print(mofs)
 
 f = open('comp_mass_output.csv','w',newline='')
 
