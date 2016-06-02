@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+import os
 import sys
 import csv
 
+from jobserver_utils import generate_unique_run_name
 from sensor_array_mof_adsorption import read_composition_configuration, read_mof_configuration
 from sensor_array_mof_adsorption import run_composition_simulation
 from hpc import job_queue
@@ -12,22 +14,26 @@ gas_comps_filepath = sys.argv[2]
 mofs = read_mof_configuration(mofs_filepath)
 compositions = read_composition_configuration(gas_comps_filepath)
 
+run_name = generate_unique_run_name()
+output_dir = 'output_%s' % run_name
+os.makedirs(output_dir)
+
 if job_queue is not None:
     print("Queueing jobs onto queue: %s" % job_queue)
     for mof in mofs:
         for composition in compositions:
-            job_queue.enqueue(run_composition_simulation, mof, composition, None)
+            job_queue.enqueue(run_composition_simulation, mof, composition, output_dir=output_dir)
 
 else:
     print("No job queue is setup. Running in serial mode here rather than on the cluster")
 
     # setup CSV file and write header
-    f = open('comp_mass_output.csv','w',newline='')
+    f = open(os.path.join(output_dir, 'comp_mass_output.csv'),'w',newline='')
     writer = csv.writer(f, delimiter='\t')
     writer.writerow(['MOF','CO2','CH4','N2','C2H6','Mass 1bar','Mass 10bar'])
 
     for mof in mofs:
         for composition in compositions:
-            run_composition_simulation(mof, composition, writer)
+            run_composition_simulation(mof, composition, csv_writer=writer, output_dir=output_dir)
 
     f.close()
