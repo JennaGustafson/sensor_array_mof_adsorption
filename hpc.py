@@ -15,4 +15,5 @@ if os.path.exists(filename):
         redis_config = yaml.load(yaml_file)
 
     redis_conn = Redis(**redis_config['redis'])
-    job_queue = Queue(redis_config['queue'], connection=redis_conn)
+    if 'queue' in redis_config:
+        job_queue = Queue(redis_config['queue'], connection=redis_conn)
