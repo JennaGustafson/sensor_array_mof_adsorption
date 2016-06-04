@@ -20,9 +20,11 @@ def read_composition_configuration(filename):
 
 mofs_filepath = sys.argv[1]
 gas_comps_filepath = sys.argv[2]
+gases_filepath = sys.argv[3]
 
 compositions = read_composition_configuration(gas_comps_filepath)
 mofs = read_mof_configuration(mofs_filepath)
+gases = read_mof_configuration(gases_filepath)
 
 print(compositions)
 print(mofs)
@@ -30,12 +32,16 @@ print(mofs)
 f = open('comp_mass_output.csv','w',newline='')
 
 # write header
+header = ['Run ID','MOF','Mass']
+for gas in gases:
+    header.append(gas)
+
 writer = csv.writer(f, delimiter='\t')
-writer.writerow(['MOF','CO2','CH4','N2','C2H6','Mass 1bar','Mass 10bar'])
+writer.writerow(header)
 
 for mof in mofs:
     for composition in compositions:
-        mass_p1, mass_p2 = sensor_array_mof_adsorption_simulation.run(
+        mass = sensor_array_mof_adsorption_simulation.run(
             mof,
             composition['CO2'], composition['CH4'], composition['N2'], composition['C2H6']
         )
@@ -43,7 +49,7 @@ for mof in mofs:
         writer.writerow([
             mof,
             composition['CO2'], composition['CH4'], composition['N2'], composition['C2H6'],
-            mass_p1, mass_p2
+            mass_p1
         ])
 
 f.close()

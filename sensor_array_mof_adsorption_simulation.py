@@ -19,7 +19,6 @@ def run(mof, co2_mf, ch4_mf, n2_mf, c2h6_mf):
     subprocess.run(['simulate', 'simulate.input'], check=True)
 
     mass_p1 = parse_output('./Output/System_0/*00.data')
-    mass_p2 = parse_output('./Output/System_0/*06.data')
 
     # archive data and configuration
     run_descriptor = "%s_%s_%s_%s_%s" % (mof, co2_mf, ch4_mf, n2_mf, c2h6_mf)
@@ -33,4 +32,4 @@ def run(mof, co2_mf, ch4_mf, n2_mf, c2h6_mf):
     shutil.rmtree('VTK')
     shutil.rmtree('Restart')
 
-    return (mass_p1, mass_p2)
+    return (mass)
