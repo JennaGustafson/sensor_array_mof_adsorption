@@ -10,9 +10,11 @@ import sjs
 
 mofs_filepath = sys.argv[1]
 gas_comps_filepath = sys.argv[2]
+gases_filepath = sys.argv[3]
 
 mofs = read_mof_configuration(mofs_filepath)
 compositions = read_composition_configuration(gas_comps_filepath)
+gases = read_mof_configuration(gases_filepath)
 
 run_name = generate_unique_run_name()
 output_dir = 'output_%s' % run_name
@@ -32,8 +34,12 @@ else:
 
     # setup CSV file and write header
     f = open(os.path.join(output_dir, 'comp_mass_output.csv'),'w',newline='')
+    # write header
+    header = ['Run ID','MOF','Mass']
+    for gas in gases:
+        header.append(gas)
     writer = csv.writer(f, delimiter='\t')
-    writer.writerow(['MOF','CO2','CH4','N2','C2H6','Mass 1bar','Mass 10bar'])
+    writer.writerow(header)
 
     for mof in mofs:
         for composition in compositions:

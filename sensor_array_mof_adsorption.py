@@ -25,7 +25,7 @@ def run_composition_simulation(mof, composition, csv_writer=None, output_dir='ou
         csv_writer = csv.writer(csv_file, delimiter='\t')
 
     # run the simulation / output the data
-    mass_p1, mass_p2 = sensor_array_mof_adsorption_simulation.run(
+    mass = sensor_array_mof_adsorption_simulation.run(
         mof,
         composition['CO2'], composition['CH4'], composition['N2'], composition['C2H6'],
         output_dir=output_dir
@@ -34,7 +34,7 @@ def run_composition_simulation(mof, composition, csv_writer=None, output_dir='ou
     csv_writer.writerow([
         mof,
         composition['CO2'], composition['CH4'], composition['N2'], composition['C2H6'],
-        mass_p1, mass_p2
+        mass
     ])
 
     # close the file, if we opened it above

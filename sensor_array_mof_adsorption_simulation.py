@@ -27,9 +27,7 @@ def run(mof, co2_mf, ch4_mf, n2_mf, c2h6_mf, output_dir='output'):
 
     # parse data from simulation
     data_filename = os.path.join(working_dir, 'Output', 'System_0', '*00.data')
-    mass_p1 = parse_output(data_filename)
-    data_filename = os.path.join(working_dir, 'Output', 'System_0', '*06.data')
-    mass_p2 = parse_output(data_filename)
+    mass = parse_output(data_filename)
 
     # archive data and configuration; delete working_dir
     run_descriptor = "%s_%s_%s_%s_%s" % (mof, co2_mf, ch4_mf, n2_mf, c2h6_mf)
@@ -40,4 +38,4 @@ def run(mof, co2_mf, ch4_mf, n2_mf, c2h6_mf, output_dir='output'):
 
     shutil.rmtree(os.path.join(working_dir))
 
-    return (mass_p1, mass_p2)
+    return (mass)
