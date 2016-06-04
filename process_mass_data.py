@@ -43,6 +43,16 @@ def interpolate_pmf(mofs_list, all_results, experimental_mass, mof_densities, nu
         # Calculates masses in terms of mg/(cm3 of framework)
         masses = [float(mof_densities[row['MOF']]) * float(row['Mass 1bar']) for row in all_results if row['MOF'] == mof]
 
+        ## TEMP, say gases is a list of gases defined in the configuration
+        for row in all_results
+            if row['MOF'] == mof: 
+                comps = [[ float(row[gas]) for gas in gases ]]
+
+        comps = [[ float(row[gas]) for gas in gases[0,len(gases) - 1] ]
+                    for row in all_results if row['MOF'] == mof]
+
+
+
         # Saves composition values as a list, necessary type for the Delaunay input argument
         comps = [[float(row['CH4']), float(row['CO2']), float(row['C2H6'])] for row in all_results if row['MOF'] == mof]
         d = Delaunay(comps)
@@ -71,7 +81,6 @@ def interpolate_pmf(mofs_list, all_results, experimental_mass, mof_densities, nu
     return(pmf_results)
 
 def create_bins(interpolate_pmf_results):
-
     """Creates bins for all gases, ranging from the lowest to highest mole fractions for each.
 
     Keyword arguments:
