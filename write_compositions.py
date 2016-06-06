@@ -2,41 +2,32 @@
 import sys
 import csv
 
-import sensor_array_mof_adsorption_simulation
-
-def read_mof_configuration(filename):
-    with open(filename) as f:
-        return [ line.strip() for line in f.readlines() ]
-
-def read_composition_configuration(filename):
-    with open(filename,newline='') as csvfile:
-        comp_reader = csv.DictReader(csvfile, delimiter="\t")
-        return list(comp_reader)
-
+from sensor_array_mof_adsorption import read_composition_configuration, read_mof_configuration
+from sensor_array_mof_adsorption import run_composition_simulation
+from hpc import job_queue
 
 mofs_filepath = sys.argv[1]
 gas_comps_filepath = sys.argv[2]
 
-compositions = read_composition_configuration(gas_comps_filepath)
 mofs = read_mof_configuration(mofs_filepath)
+compositions = read_composition_configuration(gas_comps_filepath)
 
-f = open('comp_mass_output.csv','w',newline='')
+if job_queue is not None:
+    print("Queueing jobs onto queue: %s" % job_queue)
+    for mof in mofs:
+        for composition in compositions:
+            job_queue.enqueue(run_composition_simulation, mof, composition, None)
 
-# write header
-writer = csv.writer(f, delimiter='\t')
-writer.writerow(['MOF','CO2','CH4','N2','C2H6','Mass 1bar','Mass 10bar'])
+else:
+    print("No job queue is setup. Running in serial mode here rather than on the cluster")
 
-for mof in mofs:
-    for composition in compositions:
-        mass_p1, mass_p2 = sensor_array_mof_adsorption_simulation.run(
-            mof,
-            composition['CO2'], composition['CH4'], composition['N2'], composition['C2H6']
-        )
+    # setup CSV file and write header
+    f = open('comp_mass_output.csv','w',newline='')
+    writer = csv.writer(f, delimiter='\t')
+    writer.writerow(['MOF','CO2','CH4','N2','C2H6','Mass 1bar','Mass 10bar'])
 
-        writer.writerow([
-            mof,
-            composition['CO2'], composition['CH4'], composition['N2'], composition['C2H6'],
-            mass_p1, mass_p2
-        ])
+    for mof in mofs:
+        for composition in compositions:
+            run_composition_simulation(mof, composition, writer)
 
-f.close()
+    f.close()

@@ -3,3 +3,7 @@ numpy
 matplotlib
 scipy
 pyyaml
+
+## for PITT HPC integration
+redis
+git+https://github.com/paulboone/rq.git@handle_sigterms
