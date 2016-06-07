@@ -27,7 +27,7 @@ def yaml_loader(filepath):
         data = yaml.load(yaml_file)
     return(data)
 
-def interpolate_pmf(mofs_list, all_results, experimental_mass, mof_densities, num_mixtures, stdev, mrange):
+def interpolate_data(mofs_list, all_results, experimental_mass, mof_densities, num_mixtures, stdev, mrange):
     """Creates additional gas mixtures and calculates probability mass functions (pmf) for all mass values.
 
     Keyword arguments:
@@ -37,34 +37,38 @@ def interpolate_pmf(mofs_list, all_results, experimental_mass, mof_densities, nu
     mof_densities -- dictionary of densities for each mof
     """
 
-    pmf_results = []
     for mof in mofs_list:
 
         # Calculates masses in terms of mg/(cm3 of framework)
-        masses = [float(mof_densities[row['MOF']]) * float(row['Mass 1bar']) for row in all_results if row['MOF'] == mof]
+        masses = [float(mof_densities[row['MOF']]) * float(row['Mass']) for row in all_results if row['MOF'] == mof]
 
         ## TEMP, say gases is a list of gases defined in the configuration
         for row in all_results
-            if row['MOF'] == mof: 
+            if row['MOF'] == mof:
                 comps = [[ float(row[gas]) for gas in gases ]]
 
         comps = [[ float(row[gas]) for gas in gases[0,len(gases) - 1] ]
                     for row in all_results if row['MOF'] == mof]
 
-
-
         # Saves composition values as a list, necessary type for the Delaunay input argument
-        comps = [[float(row['CH4']), float(row['CO2']), float(row['C2H6'])] for row in all_results if row['MOF'] == mof]
+        comps = [[float(row['Composition']['CH4']), float(row['Composition']['CO2']), float(row['Composition']['C2H6'])] for row in all_results if row['MOF'] == mof]
         d = Delaunay(comps)
         interp_dat = si.LinearNDInterpolator(d, masses)
 
-        # Adds random gas mixtures to the original data, between min and max of original mole fractions.
-        while (len(comps) < 78 + num_mixtures):
-            random_gas = ([0.5 * round(random(), 3), 0.5 * round(random(), 3), 0.2 * round(random(), 3)])
-            predicted_mass = interp_dat(random_gas)
-            if sum(random_gas) <= 1 and not isnan(predicted_mass):
-                comps.append(random_gas)
-                masses.extend(predicted_mass)
+def add_random_gas()
+    # Adds random gas mixtures to the original data, between min and max of original mole fractions.
+    while (len(comps) < 78 + num_mixtures):
+        random_gas = ([0.5 * round(random(), 3), 0.5 * round(random(), 3), 0.2 * round(random(), 3)])
+        predicted_mass = interp_dat(random_gas)
+        if sum(random_gas) <= 1 and not isnan(predicted_mass):
+            comps.append(random_gas)
+            masses.extend(predicted_mass)
+
+def calculate_pmf(mofs_list, all_results, experimental_mass, mof_densities, num_mixtures, stdev, mrange):
+"""Doc string goes here
+"""
+    pmf_results = []
+    for mof in mofs_list:
 
         # Calculates all pmfs based on the experimental mass and normal probability distribution.
         probs = [(ss.norm.cdf(mass + mrange, float(experimental_mass[mof]),

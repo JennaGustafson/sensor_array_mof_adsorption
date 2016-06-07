@@ -26,15 +26,11 @@ def run_composition_simulation(mof, composition, csv_writer=None, output_dir='ou
 
     # run the simulation / output the data
     mass = sensor_array_mof_adsorption_simulation.run(
-        mof,
-        composition['CO2'], composition['CH4'], composition['N2'], composition['C2H6'],
-        output_dir=output_dir
+        run_id, mof, pressure, gases, composition, 'write_comps_config.yaml', output_dir=output_dir
     )
 
-    csv_writer.writerow([
-        mof,
-        composition['CO2'], composition['CH4'], composition['N2'], composition['C2H6'],
-        mass
+    writer.writerow([
+        run_id, mof, mass, "	".join( str(composition[gas]) for gas in gases)
     ])
 
     # close the file, if we opened it above
