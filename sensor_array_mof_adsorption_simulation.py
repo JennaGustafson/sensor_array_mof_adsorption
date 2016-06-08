@@ -64,14 +64,16 @@ def parse_output(output_file):
     mass = float(subprocess.check_output(['./calculate_mass.sh', output_file]))
     return mass
 
-def run(run_id, run_descriptor, mof, pressure, gases, composition, config_file, output_dir='output'):
+def run(run_id, mof, pressure, gases, composition, config_file, output_dir='output'):
     # create unique working directory for this simulation
     working_dir = os.path.join(output_dir, generate_unique_per_process_filename())
-    os.makedirs(working_dir, exist_ok=True, cwd=working_dir)
+    os.makedirs(working_dir, exist_ok=True)
 
     # run simulation
-    write_raspa_file(os.path.join(working_dir, "simulation.input"), mof, pressure, gases, composition)
-    subprocess.run(['simulate', 'simulate.input'], check=True)
+    write_raspa_file(os.path.join(working_dir, "simulation.input"), mof, pressure, gases,
+                        composition, config_file
+                    )
+    subprocess.run(['simulate', 'simulation.input'], check=True, cwd=working_dir)
 
     # parse data from simulation
     data_filename = os.path.join(working_dir, 'Output', 'System_0', '*00.data')

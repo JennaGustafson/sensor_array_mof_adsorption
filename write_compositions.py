@@ -17,7 +17,6 @@ mofs = read_mof_configuration(mofs_filepath)
 compositions = read_composition_configuration(gas_comps_filepath)
 gases = read_mof_configuration(gases_filepath)
 
-<<<<<<< Updated upstream
 run_name = generate_unique_run_name()
 output_dir = 'output_%s' % run_name
 os.makedirs(output_dir)
@@ -25,12 +24,12 @@ os.makedirs(output_dir)
 if job_queue is not None:
     print("Queueing jobs onto queue: %s" % job_queue)
 
-    run_id = 67161308
+    run_id = 68161442
 
     for mof in mofs:
-        run__id = run_id + 111
+        run_id = run_id + 111
         for composition in compositions:
-            job_queue.enqueue(run_composition_simulation, mof, composition, run_id, output_dir=output_dir)
+            job_queue.enqueue(run_composition_simulation, mof, composition, run_id, pressure, output_dir=output_dir)
             run_id += 1
 
 else:
@@ -45,12 +44,12 @@ else:
     writer = csv.writer(f, delimiter='\t')
     writer.writerow(header)
 
-    run_id = 67161308
+    run_id = 68161529
 
     for mof in mofs:
-        run__id = run_id + 111
+        run_id = run_id + 111
         for composition in compositions:
-            run_composition_simulation(mof, composition, run_id, csv_writer=writer, output_dir=output_dir)
+            run_composition_simulation(run_id, mof, pressure, gases, composition, csv_writer=writer, output_dir=output_dir)
             run_id += 1
 
     f.close()
