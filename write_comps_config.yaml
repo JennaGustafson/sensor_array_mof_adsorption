@@ -1,0 +1,8 @@
+Forcefield_Gas_Names:
+  CO2: CO2
+  CH4: methane
+  N2: N2
+  C2H6: ethane
+  C6H6: benzene
+  H2: hydrogen
+  O2: O2
