@@ -92,22 +92,23 @@ def calculate_pmf(interpolate_data_results, mofs_list, experimental_mass, stdev,
 
     return(pmf_results)
 
-def create_bins(calculate_pmf_results):
+def create_bins(mofs_list, calculate_pmf_results, gases):
     """Creates bins for all gases, ranging from the lowest to highest mole fractions for each.
 
     Keyword arguments:
     interpolate_pmf_results -- dictionary output from the interpolate_pmf function
     """
 
-    bins = []
-
     # Creates numpy array of all compositions, needed to calculate min/max of each gas's mole frac.
-    comps_array = np.array([[row['CO2'], row['C2H6'], row['CH4'], row['N2']] for row in interpolate_pmf_results])
-    bin_range = np.column_stack((np.linspace(min(comps_array[:,0]), max(comps_array[:,0]), 12),
-                                 np.linspace(min(comps_array[:,1]), max(comps_array[:,1]), 12),
-                                 np.linspace(min(comps_array[:,2]), max(comps_array[:,2]), 12),
-                                 np.linspace(min(comps_array[:,3]), max(comps_array[:,3]), 12)))
-    bins.extend([{'CO2' : row[0], 'C2H6' : row[1], 'CH4' : row[2], 'N2' : row[3]} for row in bin_range])
+    mof = mofs_list[0]
+    temp_one_mof_results = [row for row in calculate_pmf_results if row['MOF'] == mof]
+    comps_array = np.array([[float(row[gas]) for gas in gases] for row in temp_one_mof_results])
+
+    bin_range = np.column_stack([np.linspace(min(comps_array[:,index]),
+        max(comps_array[:,index]), 12) for index in range(len(gases))])
+
+    bins = [[ { gases[index] : row[index] for index in range(len(gases)) }] for row in bin_range]
+
     return(bins)
 
 def bin_compositions(gases,mof_array, create_bins_results, interpolate_pmf_results):
