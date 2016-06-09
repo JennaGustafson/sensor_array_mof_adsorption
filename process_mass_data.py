@@ -27,7 +27,7 @@ def yaml_loader(filepath):
         data = yaml.load(yaml_file)
     return(data)
 
-def interpolate_data(mofs_list, all_results, experimental_mass, mof_densities, num_mixtures, stdev, mrange):
+def interpolate_data(mofs_list, all_results, mof_densities, gases):
     """Creates additional gas mixtures and calculates probability mass functions (pmf) for all mass values.
 
     Keyword arguments:
@@ -36,26 +36,31 @@ def interpolate_data(mofs_list, all_results, experimental_mass, mof_densities, n
     experimental_mass -- dictionary of masses for each mof
     mof_densities -- dictionary of densities for each mof
     """
+    interpolate_results = []
 
     for mof in mofs_list:
 
         # Calculates masses in terms of mg/(cm3 of framework)
-        masses = [float(mof_densities[row['MOF']]) * float(row['Mass']) for row in all_results if row['MOF'] == mof]
+        masses = [float(mof_densities[row['MOF']]) * float(row['Mass']) for row in
+                    all_results if row['MOF'] == mof]
 
-        ## TEMP, say gases is a list of gases defined in the configuration
-        for row in all_results
-            if row['MOF'] == mof:
-                comps = [[ float(row[gas]) for gas in gases ]]
-
+        # Saves composition values as a list, necessary type for the Delaunay input argument
         comps = [[ float(row[gas]) for gas in gases[0,len(gases) - 1] ]
                     for row in all_results if row['MOF'] == mof]
 
-        # Saves composition values as a list, necessary type for the Delaunay input argument
-        comps = [[float(row['Composition']['CH4']), float(row['Composition']['CO2']), float(row['Composition']['C2H6'])] for row in all_results if row['MOF'] == mof]
         d = Delaunay(comps)
         interp_dat = si.LinearNDInterpolator(d, masses)
 
-def add_random_gas()
+        all_results_temp = [ row for row in all_results if row['MOF'] == mof]]
+
+        for index in range(len(masses)):
+            temp_dict = all_results_temp[index].copy()
+            temp_dict.update({ 'Mass_mg/cm3' : masses[index] })
+            interpolate_results.extend([temp_dict])
+
+    return(interpolate_results)
+
+def add_random_gas(comps, num_mixtures)
     # Adds random gas mixtures to the original data, between min and max of original mole fractions.
     while (len(comps) < 78 + num_mixtures):
         random_gas = ([0.5 * round(random(), 3), 0.5 * round(random(), 3), 0.2 * round(random(), 3)])
@@ -64,27 +69,30 @@ def add_random_gas()
             comps.append(random_gas)
             masses.extend(predicted_mass)
 
-def calculate_pmf(mofs_list, all_results, experimental_mass, mof_densities, num_mixtures, stdev, mrange):
+def calculate_pmf(interpolate_data_results, mofs_list, experimental_mass, stdev, mrange):
 """Doc string goes here
 """
     pmf_results = []
     for mof in mofs_list:
 
         # Calculates all pmfs based on the experimental mass and normal probability distribution.
-        probs = [(ss.norm.cdf(mass + mrange, float(experimental_mass[mof]),
+        probs = [(ss.norm.cdf(row['Mass_mg/cm3'] + mrange, float(experimental_mass[mof]),
                               stdev * float(experimental_mass[mof])) -
-                  ss.norm.cdf(mass - mrange, float(experimental_mass[mof]),
-                              stdev * float(experimental_mass[mof]))) for mass in masses]
+                  ss.norm.cdf(row['Mass_mg/cm3'] - mrange, float(experimental_mass[mof]),
+                              stdev * float(experimental_mass[mof]))) for row in interpolate_data_results if row['MOF'] == mof]
         norm_probs = [(i / sum(probs)) for i in probs]
 
         # Combine mole fractions, mass values, and pmfs into a numpy array for the dictionary creation.
-        comps_mass_prob = np.column_stack((comps, masses, norm_probs))
-        pmf_results.extend([{'mof': mof, 'CH4': row[0], 'CO2': row[1],
-                             'C2H6': row[2], 'N2' : 1 - (row[0] + row[1] + row[2]),
-                             'Mass 1bar' : row[3], 'PMF 1bar' : row[4]} for row in comps_mass_prob])
+        all_results_temp = [ row for row in interpolate_data_results if row['MOF'] == mof]
+
+        for index in range(len(norm_probs)):
+            temp_dict = all_results_temp[index].copy()
+            temp_dict.update({ 'PMF' : norm_probs[index] })
+            pmf_results.extend([temp_dict])
+
     return(pmf_results)
 
-def create_bins(interpolate_pmf_results):
+def create_bins(calculate_pmf_results):
     """Creates bins for all gases, ranging from the lowest to highest mole fractions for each.
 
     Keyword arguments:
