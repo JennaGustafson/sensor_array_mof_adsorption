@@ -20,5 +20,5 @@ interpolate_data_results = interpolate_data(mofs_import, all_results_import, mof
 calculate_pmf_results = (interpolate_data_results, mofs_import, mof_experimental_mass, stdev, mrange)
 create_bins_results = create_bins(calculate_pmf_results)
 bin_compositions_results = bin_compositions(gases, mof_array, create_bins_results,
-    interpolate_pmf_results)
+    calculate_pmf_results)
 plot_binned_pmf_array(gases, mof_array, bin_compositions_results, create_bins_results)
