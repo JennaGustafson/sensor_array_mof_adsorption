@@ -45,13 +45,17 @@ def interpolate_data(mofs_list, all_results, mof_densities, gases):
                     all_results if row['MOF'] == mof]
 
         # Saves composition values as a list, necessary type for the Delaunay input argument
-        comps = [[ float(row[gas]) for gas in gases[0,len(gases) - 1] ]
-                    for row in all_results if row['MOF'] == mof]
+        comps = []
+        for row in all_results:
+            if row['MOF'] == mof:
+                comps.extend([[float(row[gas]) for gas in gases]])
+        # comps = [[ float(row[gas]) for gas in gases[0,len(gases) - 1]]
+        #             for row in all_results if row['MOF'] == mof]
 
-        d = Delaunay(comps)
+        d = Delaunay(comps[:][0,len(gases) -1])
         interp_dat = si.LinearNDInterpolator(d, masses)
 
-        all_results_temp = [ row for row in all_results if row['MOF'] == mof]]
+        all_results_temp = [ row for row in all_results if row['MOF'] == mof]
 
         for index in range(len(masses)):
             temp_dict = all_results_temp[index].copy()
@@ -60,7 +64,7 @@ def interpolate_data(mofs_list, all_results, mof_densities, gases):
 
     return(interpolate_results)
 
-def add_random_gas(comps, num_mixtures)
+def add_random_gas(comps, num_mixtures):
     # Adds random gas mixtures to the original data, between min and max of original mole fractions.
     while (len(comps) < 78 + num_mixtures):
         random_gas = ([0.5 * round(random(), 3), 0.5 * round(random(), 3), 0.2 * round(random(), 3)])
@@ -70,8 +74,8 @@ def add_random_gas(comps, num_mixtures)
             masses.extend(predicted_mass)
 
 def calculate_pmf(interpolate_data_results, mofs_list, experimental_mass, stdev, mrange):
-"""Doc string goes here
-"""
+    """Doc string goes here
+    """
     pmf_results = []
     for mof in mofs_list:
 
@@ -79,11 +83,12 @@ def calculate_pmf(interpolate_data_results, mofs_list, experimental_mass, stdev,
         probs = [(ss.norm.cdf(row['Mass_mg/cm3'] + mrange, float(experimental_mass[mof]),
                               stdev * float(experimental_mass[mof])) -
                   ss.norm.cdf(row['Mass_mg/cm3'] - mrange, float(experimental_mass[mof]),
-                              stdev * float(experimental_mass[mof]))) for row in interpolate_data_results if row['MOF'] == mof]
+                              stdev * float(experimental_mass[mof]))) for row in
+                              interpolate_data_results if row['MOF'] == mof]
         norm_probs = [(i / sum(probs)) for i in probs]
 
         # Combine mole fractions, mass values, and pmfs into a numpy array for the dictionary creation.
-        all_results_temp = [ row for row in interpolate_data_results if row['MOF'] == mof]
+        all_results_temp = [row for row in interpolate_data_results if row['MOF'] == mof]
 
         for index in range(len(norm_probs)):
             temp_dict = all_results_temp[index].copy()
@@ -111,14 +116,15 @@ def create_bins(mofs_list, calculate_pmf_results, gases):
 
     return(bins)
 
-def bin_compositions(gases,mof_array, create_bins_results, interpolate_pmf_results):
+def bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_results):
     """Sorts pmfs into bins created by create_bins function.
 
     Keyword arguments:
     gases -- list of gases specified as user input
     mof_array -- list of MOFs in the array, specified as user input
     create_bins_results -- dictionary containing bins for each gas
-    interpolate_pmf_results -- dictionary of pmfs associated with MOFs/gases as a result of interpolate_pmf function
+    interpolate_pmf_results -- dictionary of pmfs associated with MOFs/gases
+    as a result of interpolate_pmf function
     """
 
     binned_probability = []
@@ -127,11 +133,13 @@ def bin_compositions(gases,mof_array, create_bins_results, interpolate_pmf_resul
             binned_data =[]
             binned_probability_temporary = []
 
-            # Assigns pmf to bin value (dictionary) by checking whether mole frac is between the current and next bin value.
-            for row in interpolate_pmf_results:
+            # Assigns pmf to bin value (dictionary) by checking whether mole frac is
+            # between the current and next bin value.
+            for row in calculate_pmf_results:
                  for i in range(1, len(create_bins_results)):
                     if row[gas_name] >= create_bins_results[i - 1][gas_name] and row[gas_name] < create_bins_results[i][gas_name] and row['mof'] == mof_name:
-                        binned_data.append({'probability': row['PMF 1bar'], 'bin': create_bins_results[i - 1][gas_name]})
+                        binned_data.append({'probability': row['PMF'],
+                            'bin': create_bins_results[i - 1][gas_name]})
 
             # Loops through all of the bins and averages the pmfs into their assgned bins.
             for b in create_bins_results:
@@ -140,15 +148,19 @@ def bin_compositions(gases,mof_array, create_bins_results, interpolate_pmf_resul
                      if b[gas_name] == line['bin']:
                         average.append(line['probability'])
                 if average == []:
-                    binned_probability_temporary.append({'bin' : line['bin'], 'average probability' : 0})
+                    binned_probability_temporary.append({'bin' : line['bin'],
+                        'average probability' : 0})
                 else:
-                    binned_probability_temporary.append({'bin' : line['bin'], 'average probability' : np.mean(average)})
+                    binned_probability_temporary.append({'bin' : line['bin'],
+                        'average probability' : np.mean(average)})
 
             # Creates list of binned probabilities in order to loop through and normalize, sum must be 1.
             temporary_pmf_list = [row['average probability'] for row in binned_probability_temporary]
-            normalized_temporary_pmf = [number / sum(temporary_pmf_list) for number in temporary_pmf_list]
-            binned_probability.extend([{'mof' : mof_name, 'gas' : gas_name, 'bin' : binned_probability_temporary[i]['bin'],
-                                        'average probability' : normalized_temporary_pmf[i]} for i in range(0, len(normalized_temporary_pmf))])
+            normalized_temporary_pmf = [number / sum(temporary_pmf_list) for number in
+                temporary_pmf_list]
+            binned_probability.extend([{'mof' : mof_name, 'gas' : gas_name,
+                'bin' : binned_probability_temporary[i]['bin'],'average probability' :
+                normalized_temporary_pmf[i]} for i in range(0, len(normalized_temporary_pmf))])
     return(binned_probability)
 
 def plot_binned_pmf_array(gas_names,mof_names, bin_compositions_results, create_bins_results):
@@ -165,11 +177,14 @@ def plot_binned_pmf_array(gas_names,mof_names, bin_compositions_results, create_
         compound_pmfs = []
         for mof in mof_names:
             if compound_pmfs == []:
-                compound_pmfs = np.array([point['average probability'] for point in bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
+                compound_pmfs = np.array([point['average probability'] for point in
+                    bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
             else:
-                compound_pmfs *= np.array([point['average probability'] for point in bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
+                compound_pmfs *= np.array([point['average probability'] for point in
+                    bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
         normalized_compound_pmfs = [number / sum(compound_pmfs) for number in compound_pmfs]
         plot_PMF = plt.figure()
-        plt.plot([b[gas_name] for b in create_bins_results], [point for point in normalized_compound_pmfs], 'bo')
+        plt.plot([b[gas_name] for b in create_bins_results], [point for point in
+            normalized_compound_pmfs], 'bo')
         plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , "_".join(mof_names)))
         plt.close(plot_PMF)
