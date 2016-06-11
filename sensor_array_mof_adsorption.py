@@ -30,7 +30,7 @@ def run_composition_simulation(run_id, mof, pressure, gases, composition, csv_wr
     )
 
     csv_writer.writerow([
-        run_id, mof, mass, "	".join( str(composition[gas]) for gas in gases)
+        run_id, mof, mass, *[composition[gas] for gas in gases]
     ])
 
     # close the file, if we opened it above
