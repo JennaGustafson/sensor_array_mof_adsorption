@@ -101,7 +101,9 @@ def create_bins(mofs_list, calculate_pmf_results, gases):
     """Creates bins for all gases, ranging from the lowest to highest mole fractions for each.
 
     Keyword arguments:
-    interpolate_pmf_results -- dictionary output from the interpolate_pmf function
+    mofs_list -- list of mofs used in analysis
+    calculate_pmf_results -- dictionary output from the calculate_pmf function
+    gases -- list of present gases
     """
 
     # Creates numpy array of all compositions, needed to calculate min/max of each gas's mole frac.
