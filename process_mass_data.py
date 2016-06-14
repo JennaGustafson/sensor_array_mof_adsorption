@@ -52,7 +52,7 @@ def interpolate_data(mofs_list, all_results, mof_densities, gases):
         # comps = [[ float(row[gas]) for gas in gases[0,len(gases) - 1]]
         #             for row in all_results if row['MOF'] == mof]
 
-        d = Delaunay(comps[:][0,len(gases) -1])
+        d = Delaunay(np.array(comps)[:,range(len(gases)-1)])
         interp_dat = si.LinearNDInterpolator(d, masses)
 
         all_results_temp = [ row for row in all_results if row['MOF'] == mof]
@@ -112,7 +112,7 @@ def create_bins(mofs_list, calculate_pmf_results, gases):
     bin_range = np.column_stack([np.linspace(min(comps_array[:,index]),
         max(comps_array[:,index]), 12) for index in range(len(gases))])
 
-    bins = [[ { gases[index] : row[index] for index in range(len(gases)) }] for row in bin_range]
+    bins = [ { gases[index] : row[index] for index in range(len(gases)) } for row in bin_range]
 
     return(bins)
 
@@ -137,9 +137,8 @@ def bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_result
             # between the current and next bin value.
             for row in calculate_pmf_results:
                  for i in range(1, len(create_bins_results)):
-                    if row[gas_name] >= create_bins_results[i - 1][gas_name] and row[gas_name] < create_bins_results[i][gas_name] and row['mof'] == mof_name:
-                        binned_data.append({'probability': row['PMF'],
-                            'bin': create_bins_results[i - 1][gas_name]})
+                    if float(row[gas_name]) >= create_bins_results[i - 1][gas_name] and float(row[gas_name]) < create_bins_results[i][gas_name] and row['MOF'] == mof_name:
+                        binned_data.append({'probability': row['PMF'], 'bin': create_bins_results[i - 1][gas_name]})
 
             # Loops through all of the bins and averages the pmfs into their assgned bins.
             for b in create_bins_results:
