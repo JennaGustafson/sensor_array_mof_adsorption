@@ -7,3 +7,4 @@ pyyaml
 ## for PITT HPC integration
 redis
 git+https://github.com/paulboone/rq.git@handle_sigterms
+git+https://github.com/paulboone/sam-subjobserver.git

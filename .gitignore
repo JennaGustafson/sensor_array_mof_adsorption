@@ -7,3 +7,9 @@ inputs/
 outputs/
 __pycache__
 archive
+logs
+settings/rq_worker_config.py
+settings/sjs.yaml
+output_*
+sensor_ads_1*
+*.out
