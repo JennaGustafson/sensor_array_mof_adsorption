@@ -33,8 +33,8 @@ def interpolate_data(mofs_list, all_results, mof_densities, gases):
     Keyword arguments:
     mofs_list -- names of all mofs
     all_results -- imported csv of outputs as dictionary
-    experimental_mass -- dictionary of masses for each mof
     mof_densities -- dictionary of densities for each mof
+    gases -- list of all gases
     """
     interpolate_results = []
 
@@ -49,8 +49,6 @@ def interpolate_data(mofs_list, all_results, mof_densities, gases):
         for row in all_results:
             if row['MOF'] == mof:
                 comps.extend([[float(row[gas]) for gas in gases]])
-        # comps = [[ float(row[gas]) for gas in gases[0,len(gases) - 1]]
-        #             for row in all_results if row['MOF'] == mof]
 
         d = Delaunay(np.array(comps)[:,range(len(gases)-1)])
         interp_dat = si.LinearNDInterpolator(d, masses)
@@ -66,6 +64,7 @@ def interpolate_data(mofs_list, all_results, mof_densities, gases):
 
 def add_random_gas(comps, num_mixtures):
     # Adds random gas mixtures to the original data, between min and max of original mole fractions.
+
     while (len(comps) < 78 + num_mixtures):
         random_gas = ([0.5 * round(random(), 3), 0.5 * round(random(), 3), 0.2 * round(random(), 3)])
         predicted_mass = interp_dat(random_gas)
@@ -74,7 +73,14 @@ def add_random_gas(comps, num_mixtures):
             masses.extend(predicted_mass)
 
 def calculate_pmf(interpolate_data_results, mofs_list, experimental_mass, stdev, mrange):
-    """Doc string goes here
+    """Calculates probability mass function of each data point
+
+    Keyword arguments:
+    interpolate_data_results -- dictionary, results of interpolate_data method
+    mofs_list -- names of all MOFs
+    experimental_mass -- masses "experimentally" obtained for each MOF
+    stdev -- standard deviation for the normal distribution
+    mrange -- range for which the difference between cdfs is calculated
     """
     pmf_results = []
     for mof in mofs_list:
@@ -139,8 +145,13 @@ def bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_result
             # between the current and next bin value.
             for row in calculate_pmf_results:
                  for i in range(1, len(create_bins_results)):
-                    if float(row[gas_name]) >= create_bins_results[i - 1][gas_name] and float(row[gas_name]) < create_bins_results[i][gas_name] and row['MOF'] == mof_name:
-                        binned_data.append({'probability': row['PMF'], 'bin': create_bins_results[i - 1][gas_name]})
+                    if ( float(row[gas_name]) >= create_bins_results[i - 1][gas_name] and
+                         float(row[gas_name]) < create_bins_results[i][gas_name] and
+                         row['MOF'] == mof_name
+                       ):
+                        binned_data.append({ 'probability': row['PMF'],
+                                             'bin': create_bins_results[i - 1][gas_name]
+                                           })
 
             # Loops through all of the bins and averages the pmfs into their assgned bins.
             for b in create_bins_results:
