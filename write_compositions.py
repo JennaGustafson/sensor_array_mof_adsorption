@@ -7,7 +7,6 @@ from jobserver_utils import generate_unique_run_name
 from sensor_array_mof_adsorption import read_composition_configuration, read_mof_configuration
 from sensor_array_mof_adsorption import run_composition_simulation
 import sjs
-from hpc import job_queue
 from datetime import datetime
 
 mofs_filepath = sys.argv[1]
