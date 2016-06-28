@@ -13,10 +13,11 @@ mof_experimental_mass = data['experimental_mass']
 num_mixtures = data['num_mixtures']
 stdev = data['stdev']
 mrange = data['mrange']
+gases = data['gases']
+mof_array = data['mof_array']
 
-gases = ['N2', 'CH4', 'CO2', 'C2H6']
-mof_array = ['IRMOF-1', 'HKUST-1', 'NU-125']
-interpolate_pmf_results = interpolate_pmf(mofs_import, all_results_import, mof_experimental_mass, mof_densities_import, num_mixtures, stdev, mrange)
-create_bins_results = create_bins(interpolate_pmf_results)
-bin_compositions_results = bin_compositions(gases, mof_array, create_bins_results, interpolate_pmf_results)
+interpolate_data_results = interpolate_data(mofs_import, all_results_import, mof_densities_import, gases)
+calculate_pmf_results = calculate_pmf(interpolate_data_results, mofs_import, mof_experimental_mass, stdev, mrange)
+create_bins_results = create_bins(mofs_import, calculate_pmf_results, gases)
+bin_compositions_results = bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_results)
 plot_binned_pmf_array(gases, mof_array, bin_compositions_results, create_bins_results)

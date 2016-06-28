@@ -22,3 +22,16 @@ mofs:
   - NU-125
   - UIO-66
   - ZIF-8
+
+gases:
+  - CO2
+  - CH4
+  - N2
+  - C2H6
+
+mof_array:
+  - IRMOF-1
+  - HKUST-1
+  - NU-125
+  - UIO-66
+  - ZIF-8
