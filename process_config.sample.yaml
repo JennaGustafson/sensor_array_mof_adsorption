@@ -1,0 +1,39 @@
+# edit this file and save as process_config.yaml when running locally
+# contains how many gas mixtures are added when interpolating, the range that is used for
+# calculating pmf, and the standard deviation of normal distributions around experimental masses
+# densities of mofs, experimental masses for each mof, the mofs included in the analysis, the gases
+# considered, and the mofs in the end array
+
+num_mixtures: 10
+mrange: .05
+stdev: 0.1
+
+mof_array:
+  - IRMOF-1
+  - HKUST-1
+  - NU-125
+  - UIO-66
+  - ZIF-8
+
+mofs:
+  IRMOF-1:
+    density: 0.5934
+    experimental_mass: 15
+  HKUST-1:
+    density: 0.8791
+    experimental_mass: 17
+  NU-125:
+    density: 0.5783
+    experimental_mass: 19
+  UIO-66:
+    density: 1.219
+    experimental_mass: 18
+  ZIF-8:
+    density: 0.9246
+    experimental_mass: 19
+
+gases:
+  - CO2
+  - CH4
+  - N2
+  - C2H6
