@@ -32,7 +32,7 @@ if job_queue is not None:
     for mof in mofs:
         for composition in compositions:
             run_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
-            job_queue.enqueue(run_composition_simulation, mof, composition, run_id, pressure, output_dir=output_dir)
+            job_queue.enqueue(run_composition_simulation(run_id, mof, pressure, gases, composition, csv_writer=writer, output_dir=output_dir))
 
 else:
     print("No job queue is setup. Running in serial mode here rather than on the cluster")
