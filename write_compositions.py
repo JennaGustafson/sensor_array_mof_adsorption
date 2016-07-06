@@ -25,6 +25,15 @@ os.makedirs(output_dir)
 sjs.load(os.path.join("settings","sjs.yaml"))
 job_queue = sjs.get_job_queue()
 
+# setup CSV file and write header
+f = open(os.path.join(output_dir, 'comp_mass_output.csv'),'w',newline='')
+# write header
+header = ['Run ID','MOF','Mass']
+for gas in gases:
+    header.append(gas)
+writer = csv.writer(f, delimiter='\t')
+writer.writerow(header)
+
 if job_queue is not None:
     print("Queueing jobs onto queue: %s" % job_queue)
 
@@ -38,18 +47,9 @@ if job_queue is not None:
 else:
     print("No job queue is setup. Running in serial mode here rather than on the cluster")
 
-    # setup CSV file and write header
-    f = open(os.path.join(output_dir, 'comp_mass_output.csv'),'w',newline='')
-    # write header
-    header = ['Run ID','MOF','Mass']
-    for gas in gases:
-        header.append(gas)
-    writer = csv.writer(f, delimiter='\t')
-    writer.writerow(header)
-
     for mof in mofs:
         for composition in compositions:
             run_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
             run_composition_simulation(run_id, mof, pressure, gases, composition, csv_writer=writer, output_dir=output_dir)
 
-    f.close()
+f.close()
