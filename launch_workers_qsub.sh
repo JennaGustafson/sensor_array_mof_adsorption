@@ -10,7 +10,7 @@
 #PBS -q test
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=00:30:00
-#PBS -l mem=1GB
+#PBS -l mem=2GB
 #PBS -S /bin/bash
 
 # accepts a parameter stay_alive if you don't want the worker to exit immediately after all jobs
@@ -23,7 +23,7 @@ echo start_time: `date`
 # dependencies
 module purge
 module load python/3.5.1
-source ~/venv/sensor_ads/bin/activate
+source ~/venv/mof_sensor_array_ads/bin/activate
 
 cd $PBS_O_WORKDIR
 sjs_launch_workers.sh $PBS_NUM_PPN $stay_alive
