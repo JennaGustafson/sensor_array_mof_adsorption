@@ -14,6 +14,7 @@ from matplotlib import pyplot as plt
 import scipy.stats as ss
 from scipy.spatial import Delaunay
 import scipy.interpolate as si
+from datetime import datetime
 
 # Function imports csv file as a dictionary
 
@@ -198,5 +199,5 @@ def plot_binned_pmf_array(gas_names,mof_names, bin_compositions_results, create_
         plot_PMF = plt.figure()
         plt.plot([b[gas_name] for b in create_bins_results], [point for point in
             normalized_compound_pmfs], 'bo')
-        plt.savefig("plot_PMF_%s_%s.png" % (str(gas_name) , "_".join(mof_names)))
+        plt.savefig("%s_plot_PMF_%s_%s.png" % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S"), str(gas_name) , "_".join(mof_names)))
         plt.close(plot_PMF)
