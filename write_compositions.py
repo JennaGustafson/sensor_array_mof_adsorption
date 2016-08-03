@@ -40,7 +40,7 @@ if job_queue is not None:
     run_id_number = 0
     for mof in mofs:
         for composition in compositions:
-            run_id = "%s_%s" % (run_name, run_id_number)
+            run_id = run_id_number
             job_queue.enqueue(run_composition_simulation, run_id, mof, pressure, gases, composition, csv_writer=None, output_dir=output_dir)
             run_id_number += 1
 
