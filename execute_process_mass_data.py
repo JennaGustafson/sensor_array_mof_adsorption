@@ -4,7 +4,7 @@ from process_mass_data import *
 
 all_results_import = read_output_data('comp_mass_output_tmp.csv')
 
-filepath = 'process_config.sample.yaml'
+filepath = 'settings/process_config.sample.yaml'
 data = yaml_loader(filepath)
 
 mof_array = data['mof_array']
