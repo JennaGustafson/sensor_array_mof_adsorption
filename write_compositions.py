@@ -4,8 +4,8 @@ import sys
 import csv
 
 from jobserver_utils import generate_unique_run_name
-from sensor_array_mof_adsorption import read_composition_configuration, read_mof_configuration
-from sensor_array_mof_adsorption import run_composition_simulation
+from mof_array.sim.sensor_array_mof_adsorption import read_composition_configuration, read_mof_configuration
+from mof_array.sim.sensor_array_mof_adsorption import run_composition_simulation
 import sjs
 from datetime import datetime
 

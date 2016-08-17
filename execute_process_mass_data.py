@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from process_mass_data import *
+from mof_array.pmf.process_mass_data import *
 
 all_results_import = read_output_data('comp_mass_output_tmp.csv')
 
