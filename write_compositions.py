@@ -25,30 +25,33 @@ os.makedirs(output_dir)
 sjs.load(os.path.join("settings","sjs.yaml"))
 job_queue = sjs.get_job_queue()
 
+# setup CSV file and write header
+f = open(os.path.join(output_dir, 'comp_mass_output.csv'),'w',newline='')
+# write header
+header = ['Run ID','MOF','Mass']
+for gas in gases:
+    header.append(gas)
+writer = csv.writer(f, delimiter='\t')
+writer.writerow(header)
+
 if job_queue is not None:
     print("Queueing jobs onto queue: %s" % job_queue)
 
-
+    run_id_number = 0
     for mof in mofs:
         for composition in compositions:
-            run_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
-            job_queue.enqueue(run_composition_simulation, mof, composition, run_id, pressure, output_dir=output_dir)
+            run_id = "%s" % run_id_number
+            job_queue.enqueue(run_composition_simulation, run_id, mof, pressure, gases, composition, csv_writer=None, output_dir=output_dir)
+            run_id_number += 1
 
 else:
     print("No job queue is setup. Running in serial mode here rather than on the cluster")
 
-    # setup CSV file and write header
-    f = open(os.path.join(output_dir, 'comp_mass_output.csv'),'w',newline='')
-    # write header
-    header = ['Run ID','MOF','Mass']
-    for gas in gases:
-        header.append(gas)
-    writer = csv.writer(f, delimiter='\t')
-    writer.writerow(header)
-
+    run_id_number = 0
     for mof in mofs:
         for composition in compositions:
-            run_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+            run_id = "%s_%s" % (run_id_number, datetime.now().strftime("%Y_%m_%d__%H_%M_%S"))
             run_composition_simulation(run_id, mof, pressure, gases, composition, csv_writer=writer, output_dir=output_dir)
+            run_id_number +=1
 
-    f.close()
+f.close()

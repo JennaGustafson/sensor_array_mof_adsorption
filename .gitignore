@@ -14,3 +14,5 @@ output_*
 sensor_ads_1*
 *.out
 process_config.yaml
+*.png
+launch_workers_qsub.sh
