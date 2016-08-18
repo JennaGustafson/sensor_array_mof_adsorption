@@ -26,7 +26,7 @@ def run_composition_simulation(run_id, mof, pressure, gases, composition, csv_wr
 
     # run the simulation / output the data
     mass = sim.run(
-        run_id, mof, pressure, gases, composition, 'settings/write_comps_config.yaml', output_dir=output_dir
+        run_id, mof, pressure, gases, composition, 'settings/write_gcmc_sim_config.yaml', output_dir=output_dir
     )
 
     csv_writer.writerow([
