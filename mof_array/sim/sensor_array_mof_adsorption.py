@@ -1,7 +1,7 @@
 import os
 import csv
 
-import sensor_array_mof_adsorption_simulation
+import mof_array.sim.sensor_array_mof_adsorption_simulation as sim
 from jobserver_utils import generate_unique_per_process_filename
 
 
@@ -25,8 +25,8 @@ def run_composition_simulation(run_id, mof, pressure, gases, composition, csv_wr
         csv_writer = csv.writer(csv_file, delimiter='\t')
 
     # run the simulation / output the data
-    mass = sensor_array_mof_adsorption_simulation.run(
-        run_id, mof, pressure, gases, composition, 'write_comps_config.yaml', output_dir=output_dir
+    mass = sim.run(
+        run_id, mof, pressure, gases, composition, 'settings/write_gcmc_sim_config.yaml', output_dir=output_dir
     )
 
     csv_writer.writerow([
