@@ -4,9 +4,10 @@ specific gases are present in specific mole fractions based on the total mass
 adsorbed for each MOF.
 """
 
-from math import isnan
+from math import isnan, log10
 import csv
 from random import random
+from itertools import combinations
 
 import yaml
 import numpy as np
@@ -176,7 +177,32 @@ def bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_result
                 normalized_temporary_pmf[i]} for i in range(0, len(normalized_temporary_pmf))])
     return(binned_probability)
 
-def plot_binned_pmf_array(gas_names,mof_names, bin_compositions_results, create_bins_results):
+def normalize_binned_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, create_bins_results):
+    """Normalized the binned probability mass functions for a MOF array"""
+    # number_mofs will conatin a lower limit # mofs and an upper limit
+    num_mofs = min(number_mofs)
+    mof_array_list = []
+    while num_mofs < max(number_mofs):
+        mof_array_list.extend(list(combinations(mof_names, num_mofs)))
+        num_mofs += 1
+
+    normalized_pmf = []
+    for mof_array_temp in mof_array_list:
+        for gas_name in gas_names:
+            compound_pmfs = []
+            for mof in mof_array_temp: # set up names for each mof array based on # mofs and combos
+                if compound_pmfs == []:
+                    compound_pmfs = np.array([point['average probability'] for point in
+                        bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
+                else:
+                    compound_pmfs *= np.array([point['average probability'] for point in
+                        bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
+            normalized_compound_pmfs = [number / sum(compound_pmfs) for number in compound_pmfs]
+            normalized_pmf.append({'mof array': tuple(mof_array_temp), 'gas' : gas_name, 'pmf' :
+             normalized_compound_pmfs})
+    return(normalized_pmf)
+
+def plot_binned_pmf_array(gas_names, mof_names, bin_compositions_results, create_bins_results):
     """Calculates compound pmfs for MOF array and plots vs mole fraction for each gas.
 
     Keyword arguments:
@@ -186,18 +212,25 @@ def plot_binned_pmf_array(gas_names,mof_names, bin_compositions_results, create_
     create_bins_results -- dictionary result from create_bins
     """
 
-    for gas_name in gas_names:
-        compound_pmfs = []
-        for mof in mof_names:
-            if compound_pmfs == []:
-                compound_pmfs = np.array([point['average probability'] for point in
-                    bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
-            else:
-                compound_pmfs *= np.array([point['average probability'] for point in
-                    bin_compositions_results if point['mof'] == mof and point['gas'] == gas_name])
-        normalized_compound_pmfs = [number / sum(compound_pmfs) for number in compound_pmfs]
-        plot_PMF = plt.figure()
-        plt.plot([b[gas_name] for b in create_bins_results], [point for point in
-            normalized_compound_pmfs], 'bo')
-        plt.savefig("%s_plot_PMF_%s_%s.png" % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S"), str(gas_name) , "_".join(mof_names)))
-        plt.close(plot_PMF)
+    # plot_PMF = plt.figure()
+    # plt.plot([b[gas_name] for b in create_bins_results], [point for point in
+    #     normalized_compound_pmfs], 'bo')
+    # plt.savefig("%s_plot_PMF_%s_%s.png" % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S"), str(gas_name) , "_".join(mof_names)))
+    # plt.close(plot_PMF)
+
+def information_gain(normalize_binned_pmf_results, create_bins_results):
+    """Calculates the Kullback-Liebler Divergence of a MOF array with each gas component.
+
+    Keyword arguments:
+    normalize_binned_pmf_results -- list of dictionaries including array names, gases, pmfs
+    create_bins_results -- dictionary result from create_bins
+    """
+
+    array_gas_info_gain = []
+    reference_prob = 1/len(create_bins_results)
+
+    for array_pmf in normalize_binned_pmf_results:
+        kl_divergence = sum([float(pmf)*log10(float(pmf)/reference_prob) for pmf in array_pmf['pmf'] if pmf != 0])
+        array_gas_info_gain.append({'mof array': array_pmf['mof array'], 'gas': array_pmf['gas'], 'KLD': round(kl_divergence,4)})
+
+    return(array_gas_info_gain)
