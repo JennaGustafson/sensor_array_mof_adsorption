@@ -312,7 +312,6 @@ def information_gain(normalize_binned_pmf_results, create_bins_results, experime
     normalize_binned_pmf_results -- list of dictionaries including array names, gases, pmfs
     create_bins_results -- dictionary result from create_bins
     """
-
     array_gas_info_gain = []
     reference_prob = 1/len(create_bins_results)
     for mof_mass_index in range(0,len(experimental_mass_mofs[0]['Mass'])):
@@ -323,4 +322,19 @@ def information_gain(normalize_binned_pmf_results, create_bins_results, experime
 
     return(array_gas_info_gain)
 
-# def choose_best_arrays(information_gain_results):
+def choose_best_arrays(gas_names, experimental_mass_mofs, information_gain_results):
+    """Choose the best MOF arrays by selecting the top KL scores for each gas
+    """
+    ordered_by_kld = sorted(information_gain_results, key=lambda k: k['KLD'], reverse=True)
+    best_overall_array = ordered_by_kld[0]
+
+    num_points_per_gas = int(len(information_gain_results)/len(gas_names))
+    best_gas_index = 0
+    best_per_gas = []
+    best_by_gas = sorted(ordered_by_kld, key=lambda k: k['gas'])
+    while best_gas_index < len(information_gain_results):
+        best_per_gas.append(best_by_gas[best_gas_index])
+        best_gas_index += num_points_per_gas
+
+    for result in best_per_gas:
+        print("The best array for %s consists of MOFs: %s" % (result['gas'], result['mof array']))
