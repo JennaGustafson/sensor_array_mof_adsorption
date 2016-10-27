@@ -18,19 +18,14 @@ mof_array:
 mofs:
   IRMOF-1:
     density: 0.5934
-    experimental_mass: 15
   HKUST-1:
     density: 0.8791
-    experimental_mass: 17
   NU-125:
     density: 0.5783
-    experimental_mass: 19
   UIO-66:
     density: 1.219
-    experimental_mass: 18
   ZIF-8:
     density: 0.9246
-    experimental_mass: 19
 
 gases:
   - CO2

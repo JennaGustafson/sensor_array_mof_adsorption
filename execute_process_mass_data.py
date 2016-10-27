@@ -24,8 +24,6 @@ mof_experimental_mass = {}
 for mof in mof_array:
     mof_densities_import.copy()
     mof_densities_import.update({ mof : data['mofs'][mof]['density']})
-    mof_experimental_mass.copy()
-    mof_experimental_mass.update({ mof : data['mofs'][mof]['experimental_mass'] })
 
 num_mixtures = data['num_mixtures']
 stdev = data['stdev']
