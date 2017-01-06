@@ -4,7 +4,7 @@ specific gases are present in specific mole fractions based on the total mass
 adsorbed for each MOF.
 """
 
-from math import isnan, log10
+from math import isnan, log10, log
 import csv
 from random import random
 from itertools import combinations
@@ -317,7 +317,7 @@ def information_gain(normalize_binned_pmf_results, create_bins_results, experime
     for mof_mass_index in range(0,len(experimental_mass_mofs[0]['Mass'])):
         pmf_per_experiment = [pmf for pmf in normalize_binned_pmf_results if 'pmf_%s' % mof_mass_index in pmf.keys()]
         for array_pmf in pmf_per_experiment:
-            kl_divergence = sum([float(pmf)*log10(float(pmf)/reference_prob) for pmf in array_pmf['pmf_%s' % mof_mass_index] if pmf != 0])
+            kl_divergence = sum([float(pmf)*log(float(pmf)/reference_prob,2) for pmf in array_pmf['pmf_%s' % mof_mass_index] if pmf != 0])
             array_gas_info_gain.append({'experiment': mof_mass_index +1, 'mof array': array_pmf['mof array'], 'gas': array_pmf['gas'], 'KLD': round(kl_divergence,4)})
 
     return(array_gas_info_gain)
@@ -338,3 +338,6 @@ def choose_best_arrays(gas_names, experimental_mass_mofs, information_gain_resul
 
     for result in best_per_gas:
         print("The best array for %s consists of MOFs: %s" % (result['gas'], result['mof array']))
+
+    for each in ordered_by_kld:
+        print(each)

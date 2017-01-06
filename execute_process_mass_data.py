@@ -40,4 +40,5 @@ normalize_binned_pmf_results = normalize_binned_pmf(gases, number_mofs, mof_arra
 # plot_binned_pmf_array(gases, mof_array, bin_compositions_results, create_bins_results)
 kl_divergence = information_gain(normalize_binned_pmf_results, create_bins_results, experimental_mass_mofs)
 best_arrays = choose_best_arrays(gases, experimental_mass_results, kl_divergence)
+# print(kl_divergence)
 print(best_arrays)
