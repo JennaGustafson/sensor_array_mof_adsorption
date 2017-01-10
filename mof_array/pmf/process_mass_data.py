@@ -181,7 +181,6 @@ def create_bins(mofs_list, calculate_pmf_results, gases):
     temp_one_mof_results = [row for row in calculate_pmf_results if row['MOF'] == mof]
     comps_array = np.array([[float(row[gas]) for gas in gases] for row in temp_one_mof_results])
 
-
     bin_range = np.column_stack([np.linspace(min(comps_array[:,index]), max(comps_array[:,index]) +
         (max(comps_array[:,index])-min(comps_array[:,index]))/num_bins, num_bins + 1) for index in range(len(gases))])
 
@@ -278,7 +277,7 @@ def compound_pmf_for_mof_array(mof_array, experimental_mass_mofs, gas_name, mof_
     return normalized_compound_pmfs
 
 def normalize_binned_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, experimental_mass_mofs):
-    """Normalized the binned probability mass functions for a MOF array
+    """Normalizes the binned probability mass functions for a MOF array
 
     Keyword arguments:
     gas_names -- list of gases
@@ -311,7 +310,7 @@ def normalize_binned_pmf(gas_names, number_mofs, mof_names, bin_compositions_res
 
     return(normalized_pmf)
 
-def plot_binned_pmf_array(gas_names, mof_names, bin_compositions_results, create_bins_results):
+def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, experimental_mass_mofs, normalize_binned_pmf_results):
     """Calculates compound pmfs for MOF array and plots vs mole fraction for each gas.
 
     Keyword arguments:
@@ -321,11 +320,20 @@ def plot_binned_pmf_array(gas_names, mof_names, bin_compositions_results, create
     create_bins_results -- dictionary result from create_bins
     """
 
-    # plot_PMF = plt.figure()
-    # plt.plot([b[gas_name] for b in create_bins_results], [point for point in
-    #     normalized_compound_pmfs], 'bo')
-    # plt.savefig("%s_plot_PMF_%s_%s.png" % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S"), str(gas_name) , "_".join(mof_names)))
-    # plt.close(plot_PMF)
+    # Identifies experiment of interest
+    mof_mass_index = 0
+
+    pmf_per_experiment = [pmf for pmf in normalize_binned_pmf_results if 'pmf_%s' % mof_mass_index in pmf.keys()]
+    for each_array_gas_combo in pmf_per_experiment:
+        pmfs_to_plot = each_array_gas_combo['pmf_%s' % mof_mass_index]
+        gas_name = each_array_gas_combo['gas']
+        mof_names = each_array_gas_combo['mof array']
+        comps_to_plot = [b[gas_name] for b in create_bins_results][:len(create_bins_results)-1]
+        plot_PMF = plt.figure()
+        plt.plot(comps_to_plot, pmfs_to_plot, 'bo')
+        plt.title('Experiment %s, Array %s, Gas %s' % (mof_mass_index, "_".join(mof_names), str(gas_name)))
+        plt.savefig("figures/%s_%s_%s_%s.png" % (mof_mass_index, "_".join(mof_names), str(gas_name), datetime.now().strftime("%Y_%m_%d__%H_%M_%S")))
+        plt.close(plot_PMF)
 
 def information_gain(normalize_binned_pmf_results, create_bins_results, experimental_mass_mofs):
     """Calculates the Kullback-Liebler Divergence of a MOF array with each gas component.

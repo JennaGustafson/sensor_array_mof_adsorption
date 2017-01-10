@@ -8,6 +8,7 @@ from mof_array.pmf.process_mass_data import (read_output_data,
                                             create_bins,
                                             bin_compositions,
                                             normalize_binned_pmf,
+                                            plot_binned_pmf_array,
                                             information_gain,
                                             choose_best_arrays)
 
@@ -37,8 +38,6 @@ calculate_pmf_results = calculate_pmf(experimental_mass_results, import_data_res
 create_bins_results = create_bins(mof_array, calculate_pmf_results, gases)
 bin_compositions_results = bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_results, experimental_mass_mofs)
 normalize_binned_pmf_results = normalize_binned_pmf(gases, number_mofs, mof_array, bin_compositions_results, experimental_mass_mofs)
-# plot_binned_pmf_array(gases, mof_array, bin_compositions_results, create_bins_results)
+plot_binned_pmf_array(gases, mof_array, create_bins_results, experimental_mass_mofs, normalize_binned_pmf_results)
 kl_divergence = information_gain(normalize_binned_pmf_results, create_bins_results, experimental_mass_mofs)
 best_arrays = choose_best_arrays(gases, kl_divergence)
-# print(kl_divergence)
-# print(experimental_mass_results)
