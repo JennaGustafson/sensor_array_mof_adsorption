@@ -2,6 +2,8 @@
 from simulated output, for multiple MOFs and gas mixtures, and calculates the
 probability that specific gases are present in specific mole fractions
 (in each experimental case) based on the total mass adsorbed for each MOF.
+Additionally, the best MOF arrays for detecting each gas are reported,
+according to the highest information gain.
 """
 
 from math import isnan, log
@@ -67,7 +69,7 @@ def import_experimental_results(mofs_list, experimental_mass_import, mof_densiti
 
     return(experimental_results, experimental_mass_mofs)
 
-def import_interpolate_data(mofs_list, all_results, mof_densities, gases):
+def import_simulated_data(mofs_list, all_results, mof_densities, gases):
     """Imports simulated data and puts it in dictionary format
     If desired, interpolation is performed and may be used to create a denser data set
 
@@ -77,7 +79,7 @@ def import_interpolate_data(mofs_list, all_results, mof_densities, gases):
     mof_densities -- dictionary of densities for each mof
     gases -- list of all gases
     """
-    interpolate_results = []
+    simulated_results = []
     for mof in mofs_list:
         # Calculates masses in terms of mg/(cm3 of framework)
         masses = [float(mof_densities[row['MOF']]) * float(row['Mass']) for row in
@@ -96,9 +98,9 @@ def import_interpolate_data(mofs_list, all_results, mof_densities, gases):
         for index in range(len(masses)):
             temp_dict = all_results_temp[index].copy()
             temp_dict.update({ 'Mass_mg/cm3' : round(masses[index], 6) })
-            interpolate_results.extend([temp_dict])
+            simulated_results.extend([temp_dict])
 
-    return(interpolate_results)
+    return(simulated_results)
 
 def add_random_gas(comps, num_mixtures):
     """ Adds random gas mixtures to the original data, between min and max of original mole fractions
@@ -114,11 +116,11 @@ def add_random_gas(comps, num_mixtures):
             comps.append(random_gas)
             masses.extend(predicted_mass)
 
-def calculate_pmf(experimental_mass_results, interpolate_data_results, mofs_list, experimental_mass, stdev, mrange):
+def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, experimental_mass, stdev, mrange):
     """Calculates probability mass function of each data point
 
     Keyword arguments:
-    interpolate_data_results -- dictionary, results of interpolate_data method
+    import_data_results -- dictionary, results of import_simulated_data method
     mofs_list -- names of all MOFs
     experimental_mass -- masses "experimentally" obtained for each MOF
     stdev -- standard deviation for the normal distribution
@@ -129,7 +131,7 @@ def calculate_pmf(experimental_mass_results, interpolate_data_results, mofs_list
 
         mof_temp_dict = []
         # Combine mole fractions, mass values, and pmfs into a numpy array for the dictionary creation.
-        all_results_temp = [row for row in interpolate_data_results if row['MOF'] == mof]
+        all_results_temp = [row for row in import_data_results if row['MOF'] == mof]
 
         #Loop through all of the experimental masses for each MOF, read in and save comps
         experimental_mass_data = [data_row['Mass_mg/cm3'] for data_row in experimental_mass_results
@@ -144,7 +146,7 @@ def calculate_pmf(experimental_mass_results, interpolate_data_results, mofs_list
                               stdev * float(mof_mass)) -
                       ss.norm.cdf(row['Mass_mg/cm3'] - mrange, float(mof_mass),
                               stdev * float(mof_mass))) for row in
-                              interpolate_data_results if row['MOF'] == mof]
+                              import_data_results if row['MOF'] == mof]
             norm_probs = [(i / sum(probs)) for i in probs]
 
             if mof_temp_dict == []:
@@ -193,8 +195,8 @@ def bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_result
     gases -- list of gases specified as user input
     mof_array -- list of MOFs in the array, specified as user input
     create_bins_results -- dictionary containing bins for each gas
-    interpolate_pmf_results -- dictionary of pmfs associated with MOFs/gases
-    as a result of interpolate_pmf function
+    calculate_pmf_results -- dictionary output from the calculate_pmf function
+    experimental_mass_mofs -- ordered list of dictionaries with each experimental mof/mass
     """
 
     binned_probability = []
@@ -242,8 +244,8 @@ def bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_result
     return(binned_probability)
 
 
-def compound_pmf_for_mof_array(mof_array, experimental_mass_mofs, gas_name, mof_mass_index, bin_compositions_results):
-    """Combines pmfs for a mof array and gas combination, used in method 'normalize_binned_pmf'
+def compound_probability(mof_array, experimental_mass_mofs, gas_name, mof_mass_index, bin_compositions_results):
+    """Combines and normalizes pmfs for a mof array and gas combination, used in method 'array_pmf'
 
     Keyword arguments:
     mof_array -- list of mofs in array
@@ -273,10 +275,11 @@ def compound_pmf_for_mof_array(mof_array, experimental_mass_mofs, gas_name, mof_
             compound_pmfs = mof_gas_pmf
     # Normalize joint probability, sum of all points is 1
     normalized_compound_pmfs = [ number / sum(compound_pmfs) for number in compound_pmfs ]
-    return normalized_compound_pmfs
+    return(normalized_compound_pmfs)
 
-def normalize_binned_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, experimental_mass_mofs):
-    """Normalizes the binned probability mass functions for a MOF array
+def array_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, experimental_mass_mofs):
+    """Sets up all combinations of MOF arrays, uses function 'compound_probability' to get pmf values
+    for every array/gas/experiment combination
 
     Keyword arguments:
     gas_names -- list of gases
@@ -292,25 +295,25 @@ def normalize_binned_pmf(gas_names, number_mofs, mof_names, bin_compositions_res
         mof_array_list.extend(list(combinations(mof_names, num_mofs)))
         num_mofs += 1
 
-    normalized_pmf = []
+    array_gas_pmf = []
     # Nested loops take all combinations of array/gas/experiment
     for mof_array in mof_array_list:
         for gas_name in gas_names:
             for mof_mass_index in range(0,len(experimental_mass_mofs[0]['Mass'])):
                 # Calls outside function to calculate joint probability
-                normalized_compound_pmfs = compound_pmf_for_mof_array(mof_array, experimental_mass_mofs,
+                normalized_compound_pmfs = compound_probability(mof_array, experimental_mass_mofs,
                                                                       gas_name, mof_mass_index,
                                                                       bin_compositions_results
                                                                       )
-                normalized_pmf.append({
+                array_gas_pmf.append({
                     'mof array': tuple(mof_array),
                     'gas' : gas_name,
                     'pmf_%s' % mof_mass_index : normalized_compound_pmfs
                 })
 
-    return(normalized_pmf)
+    return(array_gas_pmf)
 
-def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, experimental_mass_mofs, normalize_binned_pmf_results):
+def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, experimental_mass_mofs, array_pmf_results):
     """Plots pmf vs mole fraction for each gas/MOF array combination
 
     Keyword arguments:
@@ -323,7 +326,7 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, experimenta
     # Identifies experiment of interest
     mof_mass_index = 0
     # All results for specified experiment collected in list of dictionaries
-    pmf_per_experiment = [pmf for pmf in normalize_binned_pmf_results if 'pmf_%s' % mof_mass_index in pmf.keys()]
+    pmf_per_experiment = [pmf for pmf in array_pmf_results if 'pmf_%s' % mof_mass_index in pmf.keys()]
     for each_array_gas_combo in pmf_per_experiment:
         # Y-axis, list of pmf values to plot
         pmfs_to_plot = each_array_gas_combo['pmf_%s' % mof_mass_index]
@@ -335,14 +338,15 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, experimenta
         plot_PMF = plt.figure()
         plt.plot(comps_to_plot, pmfs_to_plot, 'bo')
         plt.title('Experiment %s, Array %s, Gas %s' % (mof_mass_index, "_".join(mof_names), str(gas_name)))
-        plt.savefig("figures/%s_%s_%s_%s.png" % (mof_mass_index, "_".join(mof_names), str(gas_name), datetime.now().strftime("%Y_%m_%d__%H_%M_%S")))
+        plt.savefig("figures/%s_%s_%s_%s.png" % (mof_mass_index, "_".join(mof_names), str(gas_name),
+                    datetime.now().strftime("%Y_%m_%d__%H_%M_%S")))
         plt.close(plot_PMF)
 
-def information_gain(normalize_binned_pmf_results, create_bins_results, experimental_mass_mofs):
+def information_gain(array_pmf_results, create_bins_results, experimental_mass_mofs):
     """Calculates the Kullback-Liebler Divergence of a MOF array with each gas component.
 
     Keyword arguments:
-    normalize_binned_pmf_results -- list of dictionaries including array names, gases, pmfs
+    array_pmf_results -- list of dictionaries including array names, gases, pmfs
     create_bins_results -- dictionary result from create_bins
     experimental_mass_mofs -- ordered list of dictionaries with each experimental mof/mass
     """
@@ -350,7 +354,7 @@ def information_gain(normalize_binned_pmf_results, create_bins_results, experime
     reference_prob = 1/len(create_bins_results)
     for mof_mass_index in range(0,len(experimental_mass_mofs[0]['Mass'])):
         # For each experiment, take list of dictionaries with results
-        pmf_per_experiment = [pmf for pmf in normalize_binned_pmf_results if 'pmf_%s' % mof_mass_index in pmf.keys()]
+        pmf_per_experiment = [pmf for pmf in array_pmf_results if 'pmf_%s' % mof_mass_index in pmf.keys()]
         for array_pmf in pmf_per_experiment:
             # For each array/gas combination, calculate the kld
             kl_divergence = sum([float(pmf)*log(float(pmf)/reference_prob,2) for pmf in array_pmf['pmf_%s' % mof_mass_index] if pmf != 0])
