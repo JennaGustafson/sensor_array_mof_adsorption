@@ -337,8 +337,8 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, experimenta
         # Plot and save figure in a directory 'figures'
         plot_PMF = plt.figure()
         plt.plot(comps_to_plot, pmfs_to_plot, 'bo')
-        plt.title('Experiment %s, Array %s, Gas %s' % (mof_mass_index, "_".join(mof_names), str(gas_name)))
-        plt.savefig("figures/%s_%s_%s_%s.png" % (mof_mass_index, "_".join(mof_names), str(gas_name),
+        plt.title('Experiment %s, Array %s, Gas %s' % (mof_mass_index + 1, "_".join(mof_names), str(gas_name)))
+        plt.savefig("figures/%s_%s_%s_%s.png" % (mof_mass_index + 1, "_".join(mof_names), str(gas_name),
                     datetime.now().strftime("%Y_%m_%d__%H_%M_%S")))
         plt.close(plot_PMF)
 
