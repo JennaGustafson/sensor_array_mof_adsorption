@@ -60,7 +60,7 @@ def import_experimental_results(mofs_list, experimental_mass_import, mof_densiti
 
         for index in range(len(masses)):
             temp_dict = experimental_mass_temp[index].copy()
-            temp_dict.update({ 'Mass_mg/cm3' : round(masses[index], 6) })
+            temp_dict.update({ 'Mass_mg/cm3' : masses[index] })
             experimental_results.extend([temp_dict])
 
         # Dictionary format of all the experimental data
@@ -97,7 +97,7 @@ def import_simulated_data(mofs_list, all_results, mof_densities, gases):
         all_results_temp = [ row for row in all_results if row['MOF'] == mof]
         for index in range(len(masses)):
             temp_dict = all_results_temp[index].copy()
-            temp_dict.update({ 'Mass_mg/cm3' : round(masses[index], 6) })
+            temp_dict.update({ 'Mass_mg/cm3' : masses[index] })
             simulated_results.extend([temp_dict])
 
     return(simulated_results)
