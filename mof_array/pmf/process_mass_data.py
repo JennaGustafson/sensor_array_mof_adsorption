@@ -166,7 +166,7 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, exp
 
     return(pmf_results)
 
-def create_bins(mofs_list, calculate_pmf_results, gases):
+def create_bins(mofs_list, calculate_pmf_results, gases, num_bins):
     """Creates bins for all gases, ranging from the lowest to highest mole fractions for each.
 
     Keyword arguments:
@@ -174,8 +174,6 @@ def create_bins(mofs_list, calculate_pmf_results, gases):
     calculate_pmf_results -- dictionary output from the calculate_pmf function
     gases -- list of present gases
     """
-    num_bins = 12
-
     # Creates numpy array of all compositions, needed to calculate min/max of each gas's mole frac.
     mof = mofs_list[0]
     temp_one_mof_results = [row for row in calculate_pmf_results if row['MOF'] == mof]

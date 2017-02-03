@@ -30,12 +30,13 @@ num_mixtures = data['num_mixtures']
 stdev = data['stdev']
 mrange = data['mrange']
 gases = data['gases']
-number_mofs = [1, 5]
+number_mofs = data['number_mofs']
+number_bins = data['number_bins']
 
 experimental_mass_results, experimental_mass_mofs = import_experimental_results(mof_array, experimental_mass_import, mof_densities_import, gases)
 import_data_results = import_simulated_data(mof_array, all_results_import, mof_densities_import, gases)
 calculate_pmf_results = calculate_pmf(experimental_mass_results, import_data_results, mof_array, mof_experimental_mass, stdev, mrange)
-create_bins_results = create_bins(mof_array, calculate_pmf_results, gases)
+create_bins_results = create_bins(mof_array, calculate_pmf_results, gases, number_bins)
 bin_compositions_results = bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_results, experimental_mass_mofs)
 array_pmf_results = array_pmf(gases, number_mofs, mof_array, bin_compositions_results, experimental_mass_mofs)
 plot_binned_pmf_array(gases, mof_array, create_bins_results, experimental_mass_mofs, array_pmf_results)

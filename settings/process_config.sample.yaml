@@ -8,6 +8,12 @@ num_mixtures: 10
 mrange: .05
 stdev: 0.1
 
+number_mofs:
+  - 1
+  - 5
+
+number_bins: 12
+
 mof_array:
   - IRMOF-1
   - HKUST-1
