@@ -33,12 +33,12 @@ gases = data['gases']
 number_mofs = data['number_mofs']
 number_bins = data['number_bins']
 
-experimental_mass_results, experimental_mass_mofs = import_experimental_results(mof_array, experimental_mass_import, mof_densities_import, gases)
-import_data_results = import_simulated_data(mof_array, all_results_import, mof_densities_import, gases)
-calculate_pmf_results = calculate_pmf(experimental_mass_results, import_data_results, mof_array, mof_experimental_mass, stdev, mrange)
-create_bins_results = create_bins(mof_array, calculate_pmf_results, gases, number_bins)
-bin_compositions_results = bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_results, experimental_mass_mofs)
-array_pmf_results = array_pmf(gases, number_mofs, mof_array, bin_compositions_results, experimental_mass_mofs)
-plot_binned_pmf_array(gases, mof_array, create_bins_results, experimental_mass_mofs, array_pmf_results)
+experimental_mass_results, experimental_mass_mofs, experimental_mofs = import_experimental_results(mof_array, experimental_mass_import, mof_densities_import, gases)
+import_data_results = import_simulated_data(experimental_mofs, all_results_import, mof_densities_import, gases)
+calculate_pmf_results = calculate_pmf(experimental_mass_results, import_data_results, experimental_mofs, mof_experimental_mass, stdev, mrange)
+create_bins_results = create_bins(experimental_mofs, calculate_pmf_results, gases, number_bins)
+bin_compositions_results = bin_compositions(gases, experimental_mofs, create_bins_results, calculate_pmf_results, experimental_mass_mofs)
+array_pmf_results = array_pmf(gases, number_mofs, experimental_mofs, bin_compositions_results, experimental_mass_mofs)
+plot_binned_pmf_array(gases, experimental_mofs, create_bins_results, experimental_mass_mofs, array_pmf_results)
 kl_divergence = information_gain(array_pmf_results, create_bins_results, experimental_mass_mofs)
 best_arrays, ordered_kld_w_array = choose_best_arrays(gases, kl_divergence)

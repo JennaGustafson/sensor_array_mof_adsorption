@@ -42,32 +42,38 @@ def import_experimental_results(mofs_list, experimental_mass_import, mof_densiti
     """
     experimental_results = []
     experimental_mass_mofs = []
+    experimental_mofs = []
 
     for mof in mofs_list:
 
         # Calculates masses in terms of mg/(cm3 of framework)
         masses = [float(mof_densities[row['MOF']]) * float(row['Mass']) for row in
                     experimental_mass_import if row['MOF'] == mof]
+        if len(masses) is not 0:
 
-        # Saves composition values as a list, necessary type for the Delaunay input argument
-        comps = []
-        for row in experimental_mass_import:
-            if row['MOF'] == mof:
-                comps.extend([[float(row[gas]) for gas in gases]])
+            experimental_mofs.append(str(mof))
+            # Saves composition values as a list, necessary type for the Delaunay input argument
+            comps = []
+            for row in experimental_mass_import:
+                if row['MOF'] == mof:
+                    comps.extend([[float(row[gas]) for gas in gases]])
 
-        # List of experimental masses for current mof
-        experimental_mass_temp = [ row for row in experimental_mass_import if row['MOF'] == mof]
+            # List of experimental masses for current mof
+            experimental_mass_temp = [ row for row in experimental_mass_import if row['MOF'] == mof]
 
-        for index in range(len(masses)):
-            temp_dict = experimental_mass_temp[index].copy()
-            temp_dict.update({ 'Mass_mg/cm3' : masses[index] })
-            experimental_results.extend([temp_dict])
+            for index in range(len(masses)):
+                temp_dict = experimental_mass_temp[index].copy()
+                temp_dict.update({ 'Mass_mg/cm3' : masses[index] })
+                experimental_results.extend([temp_dict])
 
-        # Dictionary format of all the experimental data
-        temp_list = {'MOF' : mof, 'Mass' :[row['Mass_mg/cm3'] for row in experimental_results if row['MOF'] == mof]}
-        experimental_mass_mofs.append(temp_list)
+            # Dictionary format of all the experimental data
+            temp_list = {'MOF' : mof, 'Mass' :[row['Mass_mg/cm3'] for row in experimental_results if row['MOF'] == mof]}
+            experimental_mass_mofs.append(temp_list)
 
-    return(experimental_results, experimental_mass_mofs)
+        else:
+            None
+
+    return(experimental_results, experimental_mass_mofs, experimental_mofs)
 
 def import_simulated_data(mofs_list, all_results, mof_densities, gases):
     """Imports simulated data and puts it in dictionary format
@@ -137,35 +143,31 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, exp
         experimental_mass_data = [data_row['Mass_mg/cm3'] for data_row in experimental_mass_results
                                     if data_row['MOF'] == mof]
 
-        if len(experimental_mass_data) is not 0:
-            for mof_mass in experimental_mass_data:
+        for mof_mass in experimental_mass_data:
 
-                new_temp_dict = []
-                # Calculates all pmfs based on the experimental mass and normal probability distribution.
-                probs = [(ss.norm.cdf(row['Mass_mg/cm3'] + mrange, float(mof_mass),
-                                  stdev * float(mof_mass)) -
-                          ss.norm.cdf(row['Mass_mg/cm3'] - mrange, float(mof_mass),
-                                  stdev * float(mof_mass))) for row in
-                                  import_data_results if row['MOF'] == mof]
-                norm_probs = [(i / sum(probs)) for i in probs]
+            new_temp_dict = []
+            # Calculates all pmfs based on the experimental mass and normal probability distribution.
+            probs = [(ss.norm.cdf(row['Mass_mg/cm3'] + mrange, float(mof_mass),
+                              stdev * float(mof_mass)) -
+                      ss.norm.cdf(row['Mass_mg/cm3'] - mrange, float(mof_mass),
+                              stdev * float(mof_mass))) for row in
+                              import_data_results if row['MOF'] == mof]
+            norm_probs = [(i / sum(probs)) for i in probs]
 
-                if mof_temp_dict == []:
-                    for index in range(len(norm_probs)):
-                        mof_temp_dict = all_results_temp[index].copy()
-                        mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
-                        new_temp_dict.extend([mof_temp_dict])
-                    mass_temp_dict = new_temp_dict
-                else:
-                    for index in range(len(norm_probs)):
-                        mof_temp_dict = mass_temp_dict[index].copy()
-                        mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
-                        new_temp_dict.extend([mof_temp_dict])
-                    mass_temp_dict = new_temp_dict
+            if mof_temp_dict == []:
+                for index in range(len(norm_probs)):
+                    mof_temp_dict = all_results_temp[index].copy()
+                    mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
+                    new_temp_dict.extend([mof_temp_dict])
+                mass_temp_dict = new_temp_dict
+            else:
+                for index in range(len(norm_probs)):
+                    mof_temp_dict = mass_temp_dict[index].copy()
+                    mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
+                    new_temp_dict.extend([mof_temp_dict])
+                mass_temp_dict = new_temp_dict
 
-            pmf_results.extend(mass_temp_dict)
-
-        else:
-            None
+        pmf_results.extend(mass_temp_dict)
 
     return(pmf_results)
 
