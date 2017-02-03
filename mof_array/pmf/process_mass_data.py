@@ -293,9 +293,15 @@ def array_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, exper
     """
     num_mofs = min(number_mofs)
     mof_array_list = []
+
+    experimental_mof_list = []
+    for mof in experimental_mass_mofs:
+        temp_mof_names = [str(mof['MOF']) + '_%s' % number for number in range(1, len(mof['Mass']) + 1)]
+        experimental_mof_list.extend(temp_mof_names)
+
     # Creates list of MOF arrays, all combinations from min to max number of MOFs
     while num_mofs <= max(number_mofs):
-        mof_array_list.extend(list(combinations(mof_names, num_mofs)))
+        mof_array_list.extend(list(combinations(experimental_mof_list, num_mofs)))
         num_mofs += 1
 
     array_gas_pmf = []
