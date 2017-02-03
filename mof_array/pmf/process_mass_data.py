@@ -386,10 +386,4 @@ def choose_best_arrays(gas_names, information_gain_results):
         best_per_gas.append(best_by_gas[best_gas_index])
         best_gas_index += num_points_per_gas
 
-    # Prints the best arrays for each gas, regardless of experiment number
-    for result in best_per_gas:
-        print("The best array for %s consists of MOFs: %s" % (result['gas'], result['mof array']))
-
-    # Print all arrays in order of KLD values
-    for each in ordered_by_kld:
-        print(each)
+    return(best_per_gas, ordered_by_kld)
