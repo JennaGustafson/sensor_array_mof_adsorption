@@ -136,33 +136,36 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, exp
         #Loop through all of the experimental masses for each MOF, read in and save comps
         experimental_mass_data = [data_row['Mass_mg/cm3'] for data_row in experimental_mass_results
                                     if data_row['MOF'] == mof]
-        # for experimental_mass in experimental_mass_results if experimental_mass['MOF'] == mof:
-        # mof_mass = experimenatal_mass['Mass_mg/cm3']
-        for mof_mass in experimental_mass_data:
 
-            new_temp_dict = []
-            # Calculates all pmfs based on the experimental mass and normal probability distribution.
-            probs = [(ss.norm.cdf(row['Mass_mg/cm3'] + mrange, float(mof_mass),
-                              stdev * float(mof_mass)) -
-                      ss.norm.cdf(row['Mass_mg/cm3'] - mrange, float(mof_mass),
-                              stdev * float(mof_mass))) for row in
-                              import_data_results if row['MOF'] == mof]
-            norm_probs = [(i / sum(probs)) for i in probs]
+        if len(experimental_mass_data) is not 0:
+            for mof_mass in experimental_mass_data:
 
-            if mof_temp_dict == []:
-                for index in range(len(norm_probs)):
-                    mof_temp_dict = all_results_temp[index].copy()
-                    mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
-                    new_temp_dict.extend([mof_temp_dict])
-                mass_temp_dict = new_temp_dict
-            else:
-                for index in range(len(norm_probs)):
-                    mof_temp_dict = mass_temp_dict[index].copy()
-                    mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
-                    new_temp_dict.extend([mof_temp_dict])
-                mass_temp_dict = new_temp_dict
+                new_temp_dict = []
+                # Calculates all pmfs based on the experimental mass and normal probability distribution.
+                probs = [(ss.norm.cdf(row['Mass_mg/cm3'] + mrange, float(mof_mass),
+                                  stdev * float(mof_mass)) -
+                          ss.norm.cdf(row['Mass_mg/cm3'] - mrange, float(mof_mass),
+                                  stdev * float(mof_mass))) for row in
+                                  import_data_results if row['MOF'] == mof]
+                norm_probs = [(i / sum(probs)) for i in probs]
 
-        pmf_results.extend(mass_temp_dict)
+                if mof_temp_dict == []:
+                    for index in range(len(norm_probs)):
+                        mof_temp_dict = all_results_temp[index].copy()
+                        mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
+                        new_temp_dict.extend([mof_temp_dict])
+                    mass_temp_dict = new_temp_dict
+                else:
+                    for index in range(len(norm_probs)):
+                        mof_temp_dict = mass_temp_dict[index].copy()
+                        mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
+                        new_temp_dict.extend([mof_temp_dict])
+                    mass_temp_dict = new_temp_dict
+
+            pmf_results.extend(mass_temp_dict)
+
+        else:
+            None
 
     return(pmf_results)
 
