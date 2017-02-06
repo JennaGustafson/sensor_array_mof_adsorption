@@ -247,26 +247,25 @@ def bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_result
     return(binned_probability)
 
 
-def compound_probability(mof_array, experimental_mass_mofs, gas_name, mof_mass_index, bin_compositions_results):
+def compound_probability(mof_array, labeled_experimental_mass_mofs, gas_name, bin_compositions_results):
     """Combines and normalizes pmfs for a mof array and gas combination, used in method 'array_pmf'
 
     Keyword arguments:
     mof_array -- list of mofs in array
-    experimental_mass_mofs -- ordered list of dictionaries with each experimental mof/mass
+    labeled_experimental_mass_mofs -- list of dictionaries with each experimental mof & mass
     gas_name -- current gas
-    mof_mass_index -- experimental mass integer identifier
     bin_compositions_results -- list of dictionaries including mof, gas, bin, averaged probability
     """
     compound_pmfs = None
     for mof in mof_array:
         # Call the experimental mass for one mof and experiment, labeled index here
         # Take [0] to retrieve the mass as a float (from a list with one element)
-        mof_mass = [ row['Mass'][mof_mass_index] for row in experimental_mass_mofs if row['MOF'] == mof ][0]
+        mof_mass = [ row['Mass'] for row in labeled_experimental_mass_mofs if row['MOF'] == mof ][0]
         key = 'average probability_%s' % str(round(mof_mass,2))
         mof_gas_pmf = []
         for point in bin_compositions_results:
             # Creates list of pmf values for a MOF/gas/exp combination
-            if point['mof'] == mof and point['gas'] == gas_name and key in point.keys():
+            if point['gas'] == gas_name and key in point.keys():
                 mof_gas_pmf.append(point['average probability_%s' % str(round(mof_mass,2))])
         # Save list as numpy array for joint prob calculation
         mof_gas_pmf = np.array(mof_gas_pmf)
@@ -293,11 +292,14 @@ def array_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, exper
     """
     num_mofs = min(number_mofs)
     mof_array_list = []
-
+    labeled_experimental_mass_mofs = []
     experimental_mof_list = []
+
     for mof in experimental_mass_mofs:
-        temp_mof_names = [str(mof['MOF']) + '_%s' % number for number in range(1, len(mof['Mass']) + 1)]
-        experimental_mof_list.extend(temp_mof_names)
+        for number in range(len(mof['Mass'])):
+            temp_mof_name = str(mof['MOF']) + '_%s' % (number + 1)
+            labeled_experimental_mass_mofs.append({'MOF': temp_mof_name, 'Mass': mof['Mass'][number]})
+            experimental_mof_list.append(temp_mof_name)
 
     # Creates list of MOF arrays, all combinations from min to max number of MOFs
     while num_mofs <= max(number_mofs):
@@ -308,17 +310,15 @@ def array_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, exper
     # Nested loops take all combinations of array/gas/experiment
     for mof_array in mof_array_list:
         for gas_name in gas_names:
-            for mof_mass_index in range(0,len(experimental_mass_mofs[0]['Mass'])):
-                # Calls outside function to calculate joint probability
-                normalized_compound_pmfs = compound_probability(mof_array, experimental_mass_mofs,
-                                                                      gas_name, mof_mass_index,
-                                                                      bin_compositions_results
-                                                                      )
-                array_gas_pmf.append({
-                    'mof array': tuple(mof_array),
-                    'gas' : gas_name,
-                    'pmf_%s' % mof_mass_index : normalized_compound_pmfs
-                })
+            # Calls outside function to calculate joint probability
+            normalized_compound_pmfs = compound_probability(mof_array, labeled_experimental_mass_mofs,
+                                                            gas_name, bin_compositions_results
+                                                            )
+            array_gas_pmf.append({
+                'mof array': tuple(mof_array),
+                'gas' : gas_name,
+                'pmf' : normalized_compound_pmfs
+            })
 
     return(array_gas_pmf)
 
