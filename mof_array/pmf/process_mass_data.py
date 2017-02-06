@@ -320,7 +320,7 @@ def array_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, exper
                 'pmf' : normalized_compound_pmfs
             })
 
-    return(array_gas_pmf)
+    return(array_gas_pmf, labeled_experimental_mass_mofs)
 
 def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, array_pmf_results):
     """Plots pmf vs mole fraction for each gas/MOF array combination
@@ -346,25 +346,25 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, array_pmf_r
                     datetime.now().strftime("%Y_%m_%d__%H_%M_%S")))
         plt.close(plot_PMF)
 
-def information_gain(array_pmf_results, create_bins_results, experimental_mass_mofs):
+def information_gain(array_pmf_results, create_bins_results, labeled_experimental_mass_mofs):
     """Calculates the Kullback-Liebler Divergence of a MOF array with each gas component.
 
     Keyword arguments:
-    array_pmf_results -- list of dictionaries including array names, gases, pmfs
+    array_pmf_results -- list of dictionaries, mof array, gas, & list of compound pmfs
     create_bins_results -- dictionary result from create_bins
-    experimental_mass_mofs -- ordered list of dictionaries with each experimental mof/mass
+    labeled_experimental_mass_mofs -- list of dictionaries with each experimental mof & mass
     """
     array_gas_info_gain = []
     reference_prob = 1/len(create_bins_results)
-    for mof_mass_index in range(0,len(experimental_mass_mofs[0]['Mass'])):
-        # For each experiment, take list of dictionaries with results
-        pmf_per_experiment = [pmf for pmf in array_pmf_results if 'pmf_%s' % mof_mass_index in pmf.keys()]
-        for array_pmf in pmf_per_experiment:
-            # For each array/gas combination, calculate the kld
-            kl_divergence = sum([float(pmf)*log(float(pmf)/reference_prob,2) for pmf in array_pmf['pmf_%s' % mof_mass_index] if pmf != 0])
-            # Result is list of dicts, experiment expressed as integer (1,2,3...), dropping the pmf values
-            array_gas_info_gain.append({'experiment': mof_mass_index +1, 'mof array': array_pmf['mof array'],
-                                        'gas': array_pmf['gas'], 'KLD': round(kl_divergence,4)})
+
+    # For each experiment, take list of dictionaries with results
+    for array_pmf in array_pmf_results:
+        # For each array/gas combination, calculate the kld
+        kl_divergence = sum([float(pmf)*log(float(pmf)/reference_prob,2) for pmf in array_pmf['pmf'] if pmf != 0])
+        # Result is list of dicts, dropping the pmf values
+        array_gas_info_gain.append({'mof array': array_pmf['mof array'],
+                                    'gas': array_pmf['gas'],
+                                    'KLD': round(kl_divergence,4)})
 
     return(array_gas_info_gain)
 
