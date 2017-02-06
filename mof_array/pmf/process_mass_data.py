@@ -322,23 +322,18 @@ def array_pmf(gas_names, number_mofs, mof_names, bin_compositions_results, exper
 
     return(array_gas_pmf)
 
-def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, experimental_mass_mofs, array_pmf_results):
+def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, array_pmf_results):
     """Plots pmf vs mole fraction for each gas/MOF array combination
 
     Keyword arguments:
     gas_names -- list of gases specified by user
     mof_names -- list of MOFs in array, specified by user
-    bin_compositions_results -- dictionary result from bin_compositions function
     create_bins_results -- dictionary result from create_bins
+    array_pmf_results -- list of dictionaries, mof array, gas, & list of compound pmfs
     """
-
-    # Identifies experiment of interest
-    mof_mass_index = 0
-    # All results for specified experiment collected in list of dictionaries
-    pmf_per_experiment = [pmf for pmf in array_pmf_results if 'pmf_%s' % mof_mass_index in pmf.keys()]
-    for each_array_gas_combo in pmf_per_experiment:
+    for each_array_gas_combo in array_pmf_results:
         # Y-axis, list of pmf values to plot
-        pmfs_to_plot = each_array_gas_combo['pmf_%s' % mof_mass_index]
+        pmfs_to_plot = each_array_gas_combo['pmf']
         gas_name = each_array_gas_combo['gas']
         mof_names = each_array_gas_combo['mof array']
         # X-axis, list of mole fracs to plot, for relevant gas
@@ -346,8 +341,8 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, experimenta
         # Plot and save figure in a directory 'figures'
         plot_PMF = plt.figure()
         plt.plot(comps_to_plot, pmfs_to_plot, 'bo')
-        plt.title('Experiment %s, Array %s, Gas %s' % (mof_mass_index + 1, "_".join(mof_names), str(gas_name)))
-        plt.savefig("figures/%s_%s_%s_%s.png" % (mof_mass_index + 1, "_".join(mof_names), str(gas_name),
+        plt.title('Array %s, Gas %s' % (mof_names, str(gas_name)))
+        plt.savefig("figures/%s_%s_%s.png" % (mof_names, str(gas_name),
                     datetime.now().strftime("%Y_%m_%d__%H_%M_%S")))
         plt.close(plot_PMF)
 

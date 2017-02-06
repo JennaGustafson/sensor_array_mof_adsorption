@@ -39,6 +39,6 @@ calculate_pmf_results = calculate_pmf(experimental_mass_results, import_data_res
 create_bins_results = create_bins(experimental_mofs, calculate_pmf_results, gases, number_bins)
 bin_compositions_results = bin_compositions(gases, experimental_mofs, create_bins_results, calculate_pmf_results, experimental_mass_mofs)
 array_pmf_results = array_pmf(gases, number_mofs, experimental_mofs, bin_compositions_results, experimental_mass_mofs)
-plot_binned_pmf_array(gases, experimental_mofs, create_bins_results, experimental_mass_mofs, array_pmf_results)
+plot_binned_pmf_array(gases, experimental_mofs, create_bins_results, array_pmf_results)
 kl_divergence = information_gain(array_pmf_results, create_bins_results, experimental_mass_mofs)
 best_arrays, ordered_kld_w_array = choose_best_arrays(gases, kl_divergence)
