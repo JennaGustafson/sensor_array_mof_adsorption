@@ -5,7 +5,7 @@ probability that specific gases are present in specific mole fractions
 Additionally, the best MOF arrays for detecting each gas are reported,
 according to the highest information gain.
 """
-
+import os
 from math import isnan, log
 import csv
 from random import random
@@ -331,6 +331,8 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, array_pmf_r
     create_bins_results -- dictionary result from create_bins
     array_pmf_results -- list of dictionaries, mof array, gas, & list of compound pmfs
     """
+    figure_directory = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+    os.makedirs("figures/%s" % figure_directory)
     for each_array_gas_combo in array_pmf_results:
         # Y-axis, list of pmf values to plot
         pmfs_to_plot = each_array_gas_combo['pmf']
@@ -342,8 +344,7 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, array_pmf_r
         plot_PMF = plt.figure()
         plt.plot(comps_to_plot, pmfs_to_plot, 'bo')
         plt.title('Array %s, Gas %s' % (mof_names, str(gas_name)))
-        plt.savefig("figures/%s_%s_%s.png" % (mof_names, str(gas_name),
-                    datetime.now().strftime("%Y_%m_%d__%H_%M_%S")))
+        plt.savefig("figures/%s/%s_%s.png" % (figure_directory, mof_names, str(gas_name)))
         plt.close(plot_PMF)
 
 def information_gain(array_pmf_results, create_bins_results, labeled_experimental_mass_mofs):
