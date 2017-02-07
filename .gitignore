@@ -16,3 +16,6 @@ sensor_ads_1*
 settings/process_config.yaml
 *.png
 launch_workers_qsub.sh
+test*
+*csv
+*pyc
