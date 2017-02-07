@@ -42,3 +42,7 @@ array_pmf_results, labeled_exp_mass_mofs = array_pmf(gases, number_mofs, experim
 plot_binned_pmf_array(gases, experimental_mofs, create_bins_results, array_pmf_results)
 kl_divergence = information_gain(array_pmf_results, create_bins_results, labeled_exp_mass_mofs)
 best_arrays, ordered_kld_w_array = choose_best_arrays(gases, kl_divergence)
+
+print("The MOF array with the highest informaion content, of %s, is: %s" % (str(ordered_kld_w_array[0]['KLD']), str(ordered_kld_w_array[0]['mof array'])))
+for result in best_arrays:
+    print("The best array for %s consists of MOFs: %s" % (result['gas'], result['mof array']))
