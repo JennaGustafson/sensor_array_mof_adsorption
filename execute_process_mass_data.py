@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 
 from mof_array.pmf.process_mass_data import (read_output_data,
                                             yaml_loader,
@@ -12,8 +13,8 @@ from mof_array.pmf.process_mass_data import (read_output_data,
                                             information_gain,
                                             choose_best_arrays)
 
-all_results_import = read_output_data('final_output_2016_07_11.csv') #'full_output.csv'
-experimental_mass_import = read_output_data('experimental_output_tmp.csv')
+all_results_import = read_output_data(sys.argv[1])
+experimental_mass_import = read_output_data(sys.argv[2])
 
 filepath = 'settings/process_config.yaml'
 data = yaml_loader(filepath)
