@@ -42,8 +42,14 @@ bin_compositions_results = bin_compositions(gases, experimental_mofs, create_bin
 array_pmf_results, labeled_exp_mass_mofs = array_pmf(gases, number_mofs, experimental_mofs, bin_compositions_results, experimental_mass_mofs)
 plot_binned_pmf_array(gases, experimental_mofs, create_bins_results, array_pmf_results)
 kl_divergence = information_gain(array_pmf_results, create_bins_results, labeled_exp_mass_mofs)
-best_arrays, ordered_kld_w_array = choose_best_arrays(gases, kl_divergence)
+best_arrays, ordered_kld_w_array, average_kld = choose_best_arrays(gases, kl_divergence)
 
-print("The MOF array with the highest informaion content, of %s, is: %s" % (str(ordered_kld_w_array[0]['KLD']), str(ordered_kld_w_array[0]['mof array'])))
+# Print results, including the "best" MOF array structures
+print(' ================ RESULTS ===============')
+print("\nThe MOF array with the highest informaion content, of %s, is: %s \n" % (str(ordered_kld_w_array[0]['KLD']),
+                                                                                 str(ordered_kld_w_array[0]['mof array'])))
 for result in best_arrays:
     print("The best array for %s consists of MOFs: %s" % (result['gas'], result['mof array']))
+print('\nThe average Kullback-Liebler Divergence for a: ')
+for num_mofs in range(0,len(average_kld)):
+    print('\t%s MOF array is %s' %(num_mofs + 1, average_kld[num_mofs]))

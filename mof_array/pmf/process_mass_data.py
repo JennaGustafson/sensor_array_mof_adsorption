@@ -393,4 +393,13 @@ def choose_best_arrays(gas_names, information_gain_results):
         best_per_gas.append(best_by_gas[best_gas_index])
         best_gas_index += num_points_per_gas
 
-    return(best_per_gas, ordered_by_kld)
+    array_order = sorted(ordered_by_kld, key=lambda k: len(k['mof array']))
+    average_kld = [None] * len(array_order[len(array_order) - 1]['mof array'])
+    for line in array_order:
+        index = int(len(line['mof array']) - 1)
+        if average_kld[index] is not None:
+            average_kld[index] = np.mean([average_kld[index],line['KLD']])
+        else:
+            average_kld[index] = line['KLD']
+
+    return(best_per_gas, ordered_by_kld, average_kld)
