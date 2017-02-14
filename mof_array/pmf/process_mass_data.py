@@ -96,8 +96,6 @@ def import_simulated_data(mofs_list, all_results, mof_densities, gases):
         for row in all_results:
             if row['MOF'] == mof:
                 comps.extend([[float(row[gas]) for gas in gases]])
-        d = Delaunay(np.array(comps)[:,range(len(gases)-1)])
-        interp_dat = si.LinearNDInterpolator(d, masses)
 
         # Update dictionary with simulated data in terms of mg/cm3
         all_results_temp = [ row for row in all_results if row['MOF'] == mof]
