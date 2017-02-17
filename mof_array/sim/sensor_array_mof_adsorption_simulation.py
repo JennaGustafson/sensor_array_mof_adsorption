@@ -18,19 +18,20 @@ def write_raspa_file(filename, mof, pressure, gases, composition, config_file):
 
     simulation_file_header = """
 SimulationType                MonteCarlo
-NumberOfCycles                1000
+NumberOfCycles                2000
 NumberOfInitializationCycles  1000
-PrintEvery                    100
+PrintEvery                    200
 
 ChargeMethod                  Ewald
 CutOff                        12.0
-Forcefield                    GenericMOFs
+Forcefield                    JennaUFF
 EwaldPrecision                1e-6
 
 Framework 0
 FrameworkName %s
 UnitCells 1 1 1
 HeliumVoidFraction 0.81
+UseChargesFromCIFFile yes
 ExternalTemperature 298.0
 ExternalPressure %s
 """ % (mof, pressure)
