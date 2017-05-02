@@ -12,12 +12,11 @@ from mof_array.sim.sensor_array_mof_adsorption import (read_composition_configur
 
 mofs_filepath = sys.argv[1]
 gas_comps_filepath = sys.argv[2]
-gases_filepath = sys.argv[3]
-pressure = sys.argv[4]
+pressure = sys.argv[3]
 
 mofs = read_mof_configuration(mofs_filepath)
 compositions = read_composition_configuration(gas_comps_filepath)
-gases = read_mof_configuration(gases_filepath)
+gases = list(compositions[0].keys())
 
 run_name = generate_unique_run_name()
 output_dir = 'output_%s' % run_name
