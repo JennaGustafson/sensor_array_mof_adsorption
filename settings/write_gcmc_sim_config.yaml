@@ -20,5 +20,5 @@ Framework_Unit_Cells:
   MOF-801: 2 2 2
 
 Forcefield:
-  framework: JennaUFF
-  molecule: TraPPE
+  framework: Jenna-UFF-Zhang
+  molecule: TraPPE-Zhang
