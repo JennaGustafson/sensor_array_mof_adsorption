@@ -48,6 +48,9 @@ best_arrays, ordered_kld_w_array, average_kld = choose_best_arrays(gases, kl_div
 print(' ================ RESULTS ===============')
 print("\nThe MOF array with the highest informaion content, of %s, is: %s \n" % (str(ordered_kld_w_array[0]['KLD']),
                                                                                  str(ordered_kld_w_array[0]['mof array'])))
+print("\nThe MOF array with the lowest informaion content, of %s, is: %s \n" % (str(ordered_kld_w_array[len(ordered_kld_w_array)-1]['KLD']),
+                                                                                str(ordered_kld_w_array[len(ordered_kld_w_array)-1]['mof array'])))
+
 for result in best_arrays:
     print("The best array for %s consists of MOFs: %s" % (result['gas'], result['mof array']))
 print('\nThe average Kullback-Liebler Divergence for a: ')
