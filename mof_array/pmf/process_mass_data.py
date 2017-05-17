@@ -340,9 +340,10 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, array_pmf_r
         mof_names = each_array_gas_combo['mof array']
         # X-axis, list of mole fracs to plot, for relevant gas
         comps_to_plot = [b[gas_name] for b in create_bins_results][:len(create_bins_results)-1]
+        pdfs_to_plot = len(comps_to_plot) * np.array(pmfs_to_plot)
         # Plot and save figure in a directory 'figures'
         plot_PMF = plt.figure()
-        plt.plot(comps_to_plot, pmfs_to_plot, 'bo')
+        plt.plot(comps_to_plot, pdfs_to_plot, 'ro')
         plt.title('Array %s, Gas %s' % (mof_names, str(gas_name)))
         plt.savefig("figures/%s/%s_%s.png" % (figure_directory, mof_names, str(gas_name)))
         plt.close(plot_PMF)
