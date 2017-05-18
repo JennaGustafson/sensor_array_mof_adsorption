@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import sys
 
+from datetime import datetime
 from mof_array.pmf.process_mass_data import (read_output_data,
                                             yaml_loader,
+                                            write_output_data,
                                             import_experimental_results,
                                             import_simulated_data,
                                             calculate_pmf,
@@ -42,7 +44,8 @@ bin_compositions_results = bin_compositions(gases, experimental_mofs, create_bin
 array_pmf_results, labeled_exp_mass_mofs = array_pmf(gases, number_mofs, experimental_mofs, bin_compositions_results, experimental_mass_mofs)
 plot_binned_pmf_array(gases, experimental_mofs, create_bins_results, array_pmf_results)
 kl_divergence = information_gain(array_pmf_results, create_bins_results, labeled_exp_mass_mofs)
-best_arrays, ordered_kld_w_array, average_kld = choose_best_arrays(gases, kl_divergence)
+ordered_by_gas, best_arrays, ordered_kld_w_array, average_kld = choose_best_arrays(gases, kl_divergence)
+write_output_data('saved_results/ordered_by_gas_kld_%s.csv' % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S")), ordered_by_gas)
 
 # Print results, including the "best" MOF array structures
 print(' ================ RESULTS ===============')

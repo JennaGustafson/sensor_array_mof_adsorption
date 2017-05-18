@@ -32,6 +32,13 @@ def yaml_loader(filepath):
         data = yaml.load(yaml_file)
     return(data)
 
+def write_output_data(filename, data):
+    with open(filename,'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter="\t")
+        for line in data:
+            writer.writerow([line])
+    return(writer)
+
 def import_experimental_results(mofs_list, experimental_mass_import, mof_densities, gases):
     """Imports the experimental data and puts it in dictionary format
 
@@ -409,4 +416,4 @@ def choose_best_arrays(gas_names, information_gain_results):
         else:
             average_kld[index] = line['KLD']
 
-    return(best_per_gas, ordered_by_kld, average_kld)
+    return(best_by_gas, best_per_gas, ordered_by_kld, average_kld)
