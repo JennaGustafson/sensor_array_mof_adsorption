@@ -19,3 +19,4 @@ launch_workers_qsub.sh
 test*
 *csv
 *pyc
+example/*

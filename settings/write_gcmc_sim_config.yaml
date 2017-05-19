@@ -6,3 +6,19 @@ Forcefield_Gas_Names:
   C6H6: benzene
   H2: hydrogen
   O2: O2
+
+Framework_Unit_Cells:
+  IRMOF-1_v2_EQeq: 1 1 1
+  HKUST-1_v2_EQeq: 1 1 1
+  NU-125_v2_EQeq: 1 1 1
+  UIO-66_v2_EQeq: 2 2 2
+  ZIF-8_v2_EQeq: 2 2 2
+  MOF-177_EQeq: 1 1 1
+  MIL-101_EQeq: 1 1 1
+  NU-100_EQeq: 1 1 1
+  MgMOF-74_EQeq: 2 2 4
+  MOF-801: 2 2 2
+
+Forcefield:
+  framework: Jenna-UFF-Zhang
+  molecule: TraPPE-Zhang
