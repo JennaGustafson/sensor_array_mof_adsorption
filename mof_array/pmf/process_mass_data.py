@@ -350,13 +350,11 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, array_pmf_r
         comps_to_plot = [b[gas_name] for b in create_bins_results][:len(create_bins_results)-1]
         pdfs_to_plot = len(comps_to_plot) * np.array(pmfs_to_plot)
 
-        xnew = np.linspace(0.0, 1.0, len(comps_to_plot)//4)
-        power_smooth = spline(comps_to_plot, pdfs_to_plot, xnew)
-
         # Plot and save figure in a directory 'figures'
         plot_PMF = plt.figure()
+        plt.rc('xtick', labelsize=20)
+        plt.rc('ytick', labelsize=20)
         plt.plot(comps_to_plot, pdfs_to_plot, 'ro')
-        plt.plot(xnew, power_smooth, 'b-')
         plt.title('Array %s, Gas %s' % (mof_names, str(gas_name)))
         plt.savefig("figures/%s/%s_%s.png" % (figure_directory, mof_names, str(gas_name)))
         plt.close(plot_PMF)
