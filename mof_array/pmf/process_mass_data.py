@@ -146,20 +146,25 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, exp
         mof_temp_dict = []
         # Combine mole fractions, mass values, and pmfs into a numpy array for the dictionary creation.
         all_results_temp = [row for row in import_data_results if row['MOF'] == mof]
+        all_masses = [row['Mass_mg/cm3'] for row in all_results_temp]
 
         #Loop through all of the experimental masses for each MOF, read in and save comps
         experimental_mass_data = [data_row['Mass_mg/cm3'] for data_row in experimental_mass_results
                                     if data_row['MOF'] == mof]
 
         for mof_mass in experimental_mass_data:
+            myclip_a, myclip_b = 0, float(max(all_masses)) * (1 + mrange)
+            my_mean, my_std = float(mof_mass), float(stdev)
+            a, b = (myclip_a - my_mean) / my_std, (myclip_b - my_mean) / my_std
 
             new_temp_dict = []
             # Calculates all pmfs based on the experimental mass and normal probability distribution.
-            probs = [(ss.norm.cdf(row['Mass_mg/cm3'] + mrange, float(mof_mass),
-                              stdev * float(mof_mass)) -
-                      ss.norm.cdf(row['Mass_mg/cm3'] - mrange, float(mof_mass),
-                              stdev * float(mof_mass))) for row in
-                              import_data_results if row['MOF'] == mof]
+            probs = []
+            for mass in all_masses:
+                probs_upper = ss.truncnorm.cdf(float(mass) * (1 + mrange), a, b, loc = my_mean, scale = my_std)
+                probs_lower = ss.truncnorm.cdf(float(mass) * (1 - mrange), a, b, loc = my_mean, scale = my_std)
+                probs.append(probs_upper - probs_lower)
+
             norm_probs = [(i / sum(probs)) for i in probs]
 
             if mof_temp_dict == []:
