@@ -364,6 +364,33 @@ def plot_binned_pmf_array(gas_names, mof_names, create_bins_results, array_pmf_r
         plt.savefig("figures/%s/%s_%s.png" % (figure_directory, mof_names, str(gas_name)))
         plt.close(plot_PMF)
 
+def save_array_pmf_data(gas_names, mof_names, create_bins_results, array_pmf_results):
+    """Saves pmf and mole fraction data for each gas/MOF array combination
+
+    Keyword arguments:
+    gas_names -- list of gases specified by user
+    mof_names -- list of MOFs in array, specified by user
+    create_bins_results -- dictionary result from create_bins
+    array_pmf_results -- list of dictionaries, mof array, gas, & list of compound pmfs
+    """
+    data_directory = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+    os.makedirs("saved_data/%s" % data_directory)
+    for each_array_gas_combo in array_pmf_results:
+        # list of pmf values
+        pmfs_to_save = each_array_gas_combo['pmf']
+        gas_name = each_array_gas_combo['gas']
+        mof_names = each_array_gas_combo['mof array']
+        # list of mole fracs for relevant gas
+        comps_to_save = [b[gas_name] for b in create_bins_results][:len(create_bins_results)-1]
+        pdfs_to_save = len(comps_to_save) * np.array(pmfs_to_save)
+
+        filename = "saved_data/%s/%s_%s.csv" % (data_directory, mof_names, str(gas_name))
+        pdf_data = np.column_stack((comps_to_save, pdfs_to_save))
+        with open(filename,'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter="\t")
+            for line in pdf_data:
+                writer.writerow(line)
+
 def information_gain(array_pmf_results, create_bins_results, labeled_experimental_mass_mofs):
     """Calculates the Kullback-Liebler Divergence of a MOF array with each gas component.
 

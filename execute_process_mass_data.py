@@ -12,6 +12,7 @@ from mof_array.pmf.process_mass_data import (read_output_data,
                                             bin_compositions,
                                             array_pmf,
                                             plot_binned_pmf_array,
+                                            save_array_pmf_data,
                                             information_gain,
                                             choose_best_arrays)
 
@@ -43,6 +44,7 @@ create_bins_results = create_bins(experimental_mofs, calculate_pmf_results, gase
 bin_compositions_results = bin_compositions(gases, experimental_mofs, create_bins_results, calculate_pmf_results, experimental_mass_mofs)
 array_pmf_results, labeled_exp_mass_mofs = array_pmf(gases, number_mofs, experimental_mofs, bin_compositions_results, experimental_mass_mofs)
 plot_binned_pmf_array(gases, experimental_mofs, create_bins_results, array_pmf_results)
+save_array_pmf_data(gases, experimental_mofs, create_bins_results, array_pmf_results)
 kl_divergence = information_gain(array_pmf_results, create_bins_results, labeled_exp_mass_mofs)
 ordered_by_gas, best_arrays, ordered_kld_w_array, average_kld = choose_best_arrays(gases, kl_divergence)
 write_output_data('saved_results/ordered_by_gas_kld_%s.csv' % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S")), ordered_by_gas)
