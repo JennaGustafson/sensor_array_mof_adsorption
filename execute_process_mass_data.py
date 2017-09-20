@@ -13,6 +13,7 @@ from mof_array.pmf.process_mass_data import (read_output_data,
                                             array_pmf,
                                             plot_binned_pmf_array,
                                             save_array_pmf_data,
+                                            save_raw_pmf_data,
                                             information_gain,
                                             choose_best_arrays)
 
@@ -40,6 +41,7 @@ number_bins = data['number_bins']
 experimental_mass_results, experimental_mass_mofs, experimental_mofs = import_experimental_results(mof_array, experimental_mass_import, mof_densities_import, gases)
 import_data_results = import_simulated_data(experimental_mofs, all_results_import, mof_densities_import, gases)
 calculate_pmf_results = calculate_pmf(experimental_mass_results, import_data_results, experimental_mofs, mof_experimental_mass, stdev, mrange)
+save_raw_pmf_data(calculate_pmf_results)
 
 create_bins_results = create_bins(experimental_mofs, calculate_pmf_results, gases, number_bins)
 bin_compositions_results = bin_compositions(gases, experimental_mofs, create_bins_results, calculate_pmf_results, experimental_mass_mofs)
