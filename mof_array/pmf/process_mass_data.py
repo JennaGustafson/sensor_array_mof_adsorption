@@ -104,8 +104,6 @@ def import_simulated_data(mofs_list, all_results, mof_densities, gases):
         for row in all_results:
             if row['MOF'] == mof:
                 comps.extend([[float(row[gas]) for gas in gases]])
-        d = Delaunay(np.array(comps)[:,range(len(gases)-1)])
-        interp_dat = si.LinearNDInterpolator(d, masses)
 
         # Update dictionary with simulated data in terms of mg/cm3
         all_results_temp = [ row for row in all_results if row['MOF'] == mof]
@@ -420,7 +418,19 @@ def choose_best_arrays(gas_names, information_gain_results):
     gas_names -- list of gases
     information_gain_results -- list of dictionaries including each experiment, mof array, gas, and corresponding kld
     """
+    # Combine KLD values for each array
+    ranked_by_product = []
+    index = 0
+    while index < len(information_gain_results):
+        product_temp = information_gain_results[index]['KLD'] * information_gain_results[index+1]['KLD'] * information_gain_results[index+2]['KLD']
+        ranked_by_product.append({'mof_array': information_gain_results[index]['mof array'],
+                                  'num_MOFs': len(information_gain_results[index]['mof array']),
+                                  'joint_KLD': product_temp})
+        index += 3
+
     # Sort results from highest to lowest KLD values
+    ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'], reverse=True)
+    ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'], reverse=True)
     ordered_by_kld = sorted(information_gain_results, key=lambda k: k['KLD'], reverse=True)
     best_overall_array = ordered_by_kld[0]
 
@@ -446,4 +456,4 @@ def choose_best_arrays(gas_names, information_gain_results):
         else:
             average_kld[index] = line['KLD']
 
-    return(best_by_gas, best_per_gas, ordered_by_kld, average_kld)
+    return(ranked_by_product, best_by_gas, best_per_gas, ordered_by_kld, average_kld)
