@@ -246,7 +246,7 @@ def bin_compositions(gases, mof_array, create_bins_results, calculate_pmf_result
                             'average probability' : 0})
                     else:
                         binned_probability_temporary.append({'bin' : b[gas_name],
-                            'average probability' : np.mean(average)})
+                            'average probability' : sum(average)})
 
                 # Creates list of binned probabilities in order to loop through and normalize, sum must be 1.
                 temporary_pmf_list = [row['average probability'] for row in binned_probability_temporary]
@@ -446,7 +446,7 @@ def choose_best_arrays(gas_names, information_gain_results):
         ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'], reverse=True)
         ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'], reverse=True)
     else:
-        ranked_by_product = []    
+        ranked_by_product = []
     ordered_by_kld = sorted(information_gain_results, key=lambda k: k['KLD'], reverse=True)
     best_overall_array = ordered_by_kld[0]
 
