@@ -13,6 +13,7 @@ from itertools import combinations
 
 import yaml
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
 import scipy.stats as ss
 from scipy.spatial import Delaunay
@@ -388,6 +389,18 @@ def save_array_pmf_data(gas_names, mof_names, create_bins_results, array_pmf_res
             writer = csv.writer(csvfile, delimiter="\t")
             for line in pdf_data:
                 writer.writerow(line)
+
+def save_raw_pmf_data(calculate_pmf_results):
+    """Saves pmf and mole fraction data for each gas/MOF array combination
+
+    Keyword arguments:
+    gas_names -- list of gases specified by user
+    mof_names -- list of MOFs in array, specified by user
+    calculate_pmf_results -- list of dictionaries with all pmf values
+    """
+    csv_name = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+    data_frame = pd.DataFrame(calculate_pmf_results)
+    data_frame.to_csv('saved_raw_pmfs/%s.csv' % (csv_name), sep='\t')
 
 def information_gain(array_pmf_results, create_bins_results, labeled_experimental_mass_mofs):
     """Calculates the Kullback-Liebler Divergence of a MOF array with each gas component.
