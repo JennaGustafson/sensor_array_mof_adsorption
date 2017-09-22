@@ -49,7 +49,7 @@ bin_compositions_results = bin_compositions(gases, list_of_arrays, create_bins_r
 # plot_binned_pmf_array(gases, list_of_arrays, create_bins_results, bin_compositions_results)
 # save_array_pmf_data(gases, list_of_arrays, create_bins_results, bin_compositions_results)
 kl_divergence = information_gain(gases, list_of_arrays, bin_compositions_results, create_bins_results)
-combined_kld, ordered_by_gas, best_arrays, ordered_kld_w_array, average_kld = choose_best_arrays(gases, kl_divergence)
+# combined_kld, ordered_by_gas, best_arrays, ordered_kld_w_array, average_kld = choose_best_arrays(gases, kl_divergence)
 
 # write_output_data('saved_results/ordered_by_kld_product_%s.csv' % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S")), combined_kld)
 # write_output_data('saved_results/ordered_by_gas_kld_%s.csv' % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S")), ordered_by_gas)

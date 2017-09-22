@@ -414,7 +414,7 @@ def information_gain(gas_names, list_of_arrays, bin_compositions_results, create
             # For each array/gas combination, calculate the kld
             kl_divergence = sum([float(pmf)*log(float(pmf)/reference_prob,2) for pmf in pmfs_per_array if pmf != 0])
             # Result is list of dicts, dropping the pmf values
-            array_gas_info_gain.append({'mof array': ' '.join(array),
+            array_gas_info_gain.append({'mof array': array,
                                         'gas': gas,
                                         'KLD': round(kl_divergence,4)})
 
@@ -439,8 +439,22 @@ def choose_best_arrays(gas_names, information_gain_results):
             index += 3
 
         # Sort results from highest to lowest KLD values
-        ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'], reverse=True)
-        ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'], reverse=True)
+        best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'], reverse=True)
+        best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'], reverse=True)
+        # Sort results from highest to lowest KLD values
+        worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'])
+        worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'])
+
+        top_two_arrays= []
+
+        for num_mofs in range(9):
+            index = 0
+            for each_array in best_ranked_by_product:
+                while index < 2:
+                    if len(each_array['mof array']) == num_mofs and each_array['gas'] == gas_names[1]:
+                        top_two_arrays.append(each_array)
+                        index +=1
+
     else:
         ranked_by_product = []
     ordered_by_kld = sorted(information_gain_results, key=lambda k: k['KLD'], reverse=True)
