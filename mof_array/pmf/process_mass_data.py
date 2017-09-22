@@ -10,6 +10,8 @@ from math import isnan, log
 import csv
 from random import random
 from itertools import combinations
+from functools import reduce
+import operator
 
 import yaml
 import numpy as np
@@ -408,19 +410,20 @@ def information_gain(gas_names, list_of_arrays, bin_compositions_results, create
     reference_prob = 1/len(create_bins_results)
 
     # For each experiment, take list of dictionaries with results
-    for gas in gas_names:
-        for array in list_of_arrays:
-            pmfs_per_array = [row['%s' % ' '.join(array)] for row in bin_compositions_results if '%s bin' % gas in row.keys()]
-            # For each array/gas combination, calculate the kld
-            kl_divergence = sum([float(pmf)*log(float(pmf)/reference_prob,2) for pmf in pmfs_per_array if pmf != 0])
-            # Result is list of dicts, dropping the pmf values
-            array_gas_info_gain.append({'mof array': array,
-                                        'gas': gas,
-                                        'KLD': round(kl_divergence,4)})
+
+    for array in list_of_arrays:
+        array_gas_temp = {'mof array' : array}
+        for gas in gas_names:
+                pmfs_per_array = [row['%s' % ' '.join(array)] for row in bin_compositions_results if '%s bin' % gas in row.keys()]
+                # For each array/gas combination, calculate the kld
+                kl_divergence = sum([float(pmf)*log(float(pmf)/reference_prob,2) for pmf in pmfs_per_array if pmf != 0])
+                # Result is list of dicts, dropping the pmf values
+                array_gas_temp.update({'%s KLD' % gas : round(kl_divergence,4)})
+        array_gas_info_gain.append(array_gas_temp)
 
     return(array_gas_info_gain)
 
-def choose_best_arrays(gas_names, information_gain_results):
+def choose_best_arrays(gas_names, number_mofs, information_gain_results):
     """Choose the best MOF arrays by selecting the top KL scores for each gas
 
     Keyword arguments:
@@ -430,13 +433,11 @@ def choose_best_arrays(gas_names, information_gain_results):
     # Combine KLD values for each array
     if len(gas_names) > 2:
         ranked_by_product = []
-        index = 0
-        while index < len(information_gain_results):
-            product_temp = information_gain_results[index]['KLD'] * information_gain_results[index+1]['KLD'] * information_gain_results[index+2]['KLD']
-            ranked_by_product.append({'mof_array': information_gain_results[index]['mof array'],
-                                      'num_MOFs': len(information_gain_results[index]['mof array']),
-                                      'joint_KLD': product_temp})
-            index += 3
+        for each_array in information_gain_results:
+            product_temp = reduce(operator.mul, [each_array['%s KLD' % gas] for gas in gas_names], 1)
+            each_array_temp = each_array.copy()
+            each_array_temp.update({'joint_KLD' : product_temp, 'num_MOFs' : len(each_array['mof array'])})
+            ranked_by_product.append(each_array_temp)
 
         # Sort results from highest to lowest KLD values
         best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'], reverse=True)
@@ -445,18 +446,20 @@ def choose_best_arrays(gas_names, information_gain_results):
         worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'])
         worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'])
 
-        top_two_arrays= []
+        arrays_to_pick_from = [best_ranked_by_product, worst_ranked_by_product]
+        top_and_bottom_arrays = []
 
-        for num_mofs in range(9):
-            index = 0
-            for each_array in best_ranked_by_product:
-                while index < 2:
-                    if len(each_array['mof array']) == num_mofs and each_array['gas'] == gas_names[1]:
-                        top_two_arrays.append(each_array)
+        for ranked_list in arrays_to_pick_from:
+            for num_mofs in range(min(number_mofs),max(number_mofs)+1):
+                index = 0
+                for each_array in ranked_list:
+                    if index < 2 and len(each_array['mof array']) == num_mofs:
+                        top_and_bottom_arrays.append(each_array)
                         index +=1
 
     else:
         ranked_by_product = []
+
     ordered_by_kld = sorted(information_gain_results, key=lambda k: k['KLD'], reverse=True)
     best_overall_array = ordered_by_kld[0]
 
