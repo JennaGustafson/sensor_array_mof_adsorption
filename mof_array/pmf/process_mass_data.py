@@ -431,37 +431,36 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
     information_gain_results -- list of dictionaries including each experiment, mof array, gas, and corresponding kld
     """
     # Combine KLD values for each array
+    ranked_by_product = []
     if len(gas_names) > 2:
-        ranked_by_product = []
         for each_array in information_gain_results:
             product_temp = reduce(operator.mul, [each_array['%s KLD' % gas] for gas in gas_names], 1)
             each_array_temp = each_array.copy()
             each_array_temp.update({'joint_KLD' : product_temp, 'num_MOFs' : len(each_array['mof array'])})
             ranked_by_product.append(each_array_temp)
-
-        # Sort results from highest to lowest KLD values
-        best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'], reverse=True)
-        best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'], reverse=True)
-        # Sort results from highest to lowest KLD values
-        worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'])
-        worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'])
-
-        arrays_to_pick_from = [best_ranked_by_product, worst_ranked_by_product]
-        top_and_bottom_arrays = []
-
-        for ranked_list in arrays_to_pick_from:
-            for num_mofs in range(min(number_mofs),max(number_mofs)+1):
-                index = 0
-                for each_array in ranked_list:
-                    if index < 2 and len(each_array['mof array']) == num_mofs:
-                        top_and_bottom_arrays.append(each_array)
-                        index +=1
-
     else:
-        ranked_by_product = []
+        for each_array in information_gain_results:
+            each_array_temp = each_array.copy()
+            each_array_temp.update({'joint_KLD' : each_array['%s KLD' % gas[0]], 'num_MOFs' : len(each_array['mof array'])})
+            ranked_by_product.append(each_array_temp)
 
-    ordered_by_kld = sorted(information_gain_results, key=lambda k: k['KLD'], reverse=True)
-    best_overall_array = ordered_by_kld[0]
+    # Sort results from highest to lowest KLD values
+    best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'], reverse=True)
+    best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'], reverse=True)
+    # Sort results from highest to lowest KLD values
+    worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'])
+    worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'])
+
+    arrays_to_pick_from = [best_ranked_by_product, worst_ranked_by_product]
+    top_and_bottom_arrays = []
+
+    for ranked_list in arrays_to_pick_from:
+        for num_mofs in range(min(number_mofs),max(number_mofs)+1):
+            index = 0
+            for each_array in ranked_list:
+                if index < 2 and len(each_array['mof array']) == num_mofs:
+                    top_and_bottom_arrays.append(each_array)
+                    index +=1
 
     # Number of array/experiment combinations for each gas
     num_points_per_gas = int(len(information_gain_results)/len(gas_names))
@@ -485,4 +484,4 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
         else:
             average_kld[index] = line['KLD']
 
-    return(ranked_by_product, best_by_gas, best_per_gas, ordered_by_kld, average_kld)
+    return(top_and_bottom_arrays, best_by_gas, best_per_gas, ordered_by_kld, average_kld)
