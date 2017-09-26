@@ -470,10 +470,7 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
                     top_and_bottom_arrays.append(each_array)
                     index +=1
 
-    # Number of array/experiment combinations for each gas
-    num_points_per_gas = int(len(information_gain_results)/len(gas_names))
     top_and_bottom_by_gas = []
-
     # Sort by the performance of arrays per gas and sav top and bottom two at each size
     for gas in gas_names:
         best_per_gas = sorted(information_gain_results, key=lambda k: k['%s KLD' % gas], reverse=True)
