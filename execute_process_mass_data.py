@@ -49,19 +49,6 @@ bin_compositions_results = bin_compositions(gases, list_of_arrays, create_bins_r
 plot_binned_pmf_array(gases, list_of_arrays, create_bins_results, bin_compositions_results)
 save_array_pmf_data(gases, list_of_arrays, create_bins_results, bin_compositions_results)
 kl_divergence = information_gain(gases, list_of_arrays, bin_compositions_results, create_bins_results)
-combined_kld, ordered_by_gas, best_arrays, ordered_kld_w_array, average_kld = choose_best_arrays(gases, number_mofs, kl_divergence)
-write_output_data('saved_results/ordered_by_kld_product_%s.csv' % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S")), combined_kld)
-write_output_data('saved_results/ordered_by_gas_kld_%s.csv' % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S")), ordered_by_gas)
-
-# Print results, including the "best" MOF array structures
-print(' ================ RESULTS ===============')
-print("\nThe MOF array with the highest informaion content, of %s, is: %s \n" % (str(ordered_kld_w_array[0]['KLD']),
-                                                                                 str(ordered_kld_w_array[0]['mof array'])))
-print("\nThe MOF array with the lowest informaion content, of %s, is: %s \n" % (str(ordered_kld_w_array[len(ordered_kld_w_array)-1]['KLD']),
-                                                                                str(ordered_kld_w_array[len(ordered_kld_w_array)-1]['mof array'])))
-
-for result in best_arrays:
-    print("The best array for %s consists of MOFs: %s" % (result['gas'], result['mof array']))
-print('\nThe average Kullback-Liebler Divergence for a: ')
-for num_mofs in range(0,len(average_kld)):
-    print('\t%s MOF array is %s' %(num_mofs + 1, average_kld[num_mofs]))
+ordered_by_kld_product, ordered_by_gas = choose_best_arrays(gases, number_mofs, kl_divergence)
+write_output_data('saved_results/ordered_by_gas_%s.csv' % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S")), ordered_by_gas)
+write_output_data('saved_results/ordered_by_kld_product_%s.csv' % (datetime.now().strftime("%Y_%m_%d__%H_%M_%S")), ordered_by_kld_product)

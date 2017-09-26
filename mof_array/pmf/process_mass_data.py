@@ -464,24 +464,18 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
 
     # Number of array/experiment combinations for each gas
     num_points_per_gas = int(len(information_gain_results)/len(gas_names))
-    best_gas_index = 0
-    best_per_gas = []
+    top_and_bottom_by_gas = []
 
-    # Already sorted from highest to lowest KLD, sort by gas
-    best_by_gas = sorted(ordered_by_kld, key=lambda k: k['gas'])
+    for gas in gas_names:
+        best_per_gas = sorted(information_gain_results, key=lambda k: k['%s KLD' % gas], reverse=True)
+        worst_per_gas = sorted(information_gain_results, key=lambda k: k['%s KLD' % gas])
+        best_and_worst_gas = [best_per_gas, worst_per_gas]
+        for num_mofs in range(min(number_mofs),max(number_mofs)+1):
+            for ranked_list in best_and_worst_gas:
+                index = 0
+                for each_array in ranked_list:
+                    if index == 0 and len(each_array['mof array']) == num_mofs:
+                        top_and_bottom_by_gas.append(each_array)
+                        index +=1
 
-    # Take the highest KLD values for every gas, increasing the loop by number of results per gas
-    while best_gas_index < len(information_gain_results):
-        best_per_gas.append(best_by_gas[best_gas_index])
-        best_gas_index += num_points_per_gas
-
-    array_order = sorted(ordered_by_kld, key=lambda k: len(k['mof array']))
-    average_kld = [None] * len(array_order[len(array_order) - 1]['mof array'])
-    for line in array_order:
-        index = int(len(line['mof array']) - 1)
-        if average_kld[index] is not None:
-            average_kld[index] = np.mean([average_kld[index],line['KLD']])
-        else:
-            average_kld[index] = line['KLD']
-
-    return(top_and_bottom_arrays, best_by_gas, best_per_gas, ordered_by_kld, average_kld)
+    return(top_and_bottom_arrays, top_and_bottom_by_gas)
