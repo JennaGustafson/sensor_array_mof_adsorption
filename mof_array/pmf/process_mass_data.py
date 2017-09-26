@@ -484,4 +484,4 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
                         top_and_bottom_by_gas.append(each_array)
                         index +=1
 
-    return(top_and_bottom_arrays, top_and_bottom_by_gas)
+    return(top_and_bottom_arrays, top_and_bottom_by_gas, best_ranked_by_product)
