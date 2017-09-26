@@ -154,12 +154,13 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, exp
                                     if data_row['MOF'] == mof]
 
         for mof_mass in experimental_mass_data:
+            # Sets up the truncated distribution parameters
             myclip_a, myclip_b = 0, float(max(all_masses)) * (1 + mrange)
             my_mean, my_std = float(mof_mass), float(stdev)
             a, b = (myclip_a - my_mean) / my_std, (myclip_b - my_mean) / my_std
 
             new_temp_dict = []
-            # Calculates all pmfs based on the experimental mass and normal probability distribution.
+            # Calculates all pmfs based on the experimental mass and truncated normal probability distribution.
             probs = []
             for mass in all_masses:
                 probs_upper = ss.truncnorm.cdf(float(mass) * (1 + mrange), a, b, loc = my_mean, scale = my_std)
@@ -168,6 +169,7 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, exp
 
             norm_probs = [(i / sum(probs)) for i in probs]
 
+            # Update dictionary with pmf for each MOF, key specified by experimental mass
             if mof_temp_dict == []:
                 for index in range(len(norm_probs)):
                     mof_temp_dict = all_results_temp[index].copy()
@@ -254,12 +256,14 @@ def array_pmf(gas_names, number_mofs, mof_names, calculate_pmf_results, experime
         normalized_compound_pmfs = compound_probability(mof_array, labeled_experimental_mass_mofs,
                                                         calculate_pmf_results)
         if mof_array == mof_array_list[0]:
+            # First array, set up dict with keys for each array and gas, specifying pmfs and comps
             for index in range(len(array_temp_dict)):
                 array_dict = {'%s' % ' '.join(mof_array) : normalized_compound_pmfs[index]}
                 for gas in gas_names:
                     array_dict.update({ '%s' % gas : float(array_temp_dict[index][gas])})
                 array_pmf.extend([array_dict])
         else:
+            # Update dictionary with pmf list for each array
             for index in range(len(array_temp_dict)):
                 array_dict = array_pmf[index].copy()
                 array_dict.update({'%s' % ' '.join(mof_array) : normalized_compound_pmfs[index]})
@@ -309,17 +313,20 @@ def bin_compositions(gases, list_of_arrays, create_bins_results, array_pmf_resul
                    ):
                     row.update({'%s bin' % gas_name: create_bins_results[i - 1][gas_name]})
 
-        # Loops through all of the bins and averages the pmfs into their assgned bins.
+        # Loops through all of the bins and takes sum over all pmfs in that bin.
         binned_probability_temporary = []
         for b in create_bins_results[0:len(create_bins_results)-1]:
             temp_array_pmf = {'%s' % ' '.join(array): [] for array in list_of_arrays}
             for line in array_pmf_results:
+                # Checks that the gas' mole frac matches the current bin
                 if b[gas_name] == line['%s bin' % gas_name]:
+                    # For each array, assigns the pmfs to their corresponding key
                     for array in list_of_arrays:
                         temp_pmf_list = temp_array_pmf['%s' % ' '.join(array)]
                         temp_pmf_list.append(line['%s' % ' '.join(array)])
                         temp_array_pmf['%s' % ' '.join(array)] = temp_pmf_list
 
+            # Updates pmfs for each array for current bin, summing over all pmfs
             bin_temporary = {'%s bin' % gas_name : b[gas_name]}
             for array in list_of_arrays:
                 if temp_array_pmf['%s' % ' '.join(array)] == []:
@@ -329,7 +336,7 @@ def bin_compositions(gases, list_of_arrays, create_bins_results, array_pmf_resul
 
             binned_probability_temporary.append(bin_temporary)
 
-        # Creates list of binned probabilities in order to loop through and normalize, sum must be 1.
+        # Creates list of binned probabilities, already normalized
         binned_probability.extend(binned_probability_temporary)
 
     return(binned_probability)
@@ -409,8 +416,7 @@ def information_gain(gas_names, list_of_arrays, bin_compositions_results, create
     array_gas_info_gain = []
     reference_prob = 1/len(create_bins_results)
 
-    # For each experiment, take list of dictionaries with results
-
+    # For each array, take list of dictionaries with results
     for array in list_of_arrays:
         array_gas_temp = {'mof array' : array}
         for gas in gas_names:
@@ -430,7 +436,8 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
     gas_names -- list of gases
     information_gain_results -- list of dictionaries including each experiment, mof array, gas, and corresponding kld
     """
-    # Combine KLD values for each array
+    # Combine KLD values for each array,taking the product over all gases
+    # for mixtures having more than two components
     ranked_by_product = []
     if len(gas_names) > 2:
         for each_array in information_gain_results:
@@ -447,13 +454,14 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
     # Sort results from highest to lowest KLD values
     best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'], reverse=True)
     best_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'], reverse=True)
-    # Sort results from highest to lowest KLD values
+    # Sort results from lowest to highest KLD values
     worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['num_MOFs'])
     worst_ranked_by_product = sorted(ranked_by_product, key=lambda k: k['joint_KLD'])
 
     arrays_to_pick_from = [best_ranked_by_product, worst_ranked_by_product]
     top_and_bottom_arrays = []
 
+    # Saves top and bottom two arrays of each array size
     for ranked_list in arrays_to_pick_from:
         for num_mofs in range(min(number_mofs),max(number_mofs)+1):
             index = 0
@@ -466,6 +474,7 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
     num_points_per_gas = int(len(information_gain_results)/len(gas_names))
     top_and_bottom_by_gas = []
 
+    # Sort by the performance of arrays per gas and sav top and bottom two at each size
     for gas in gas_names:
         best_per_gas = sorted(information_gain_results, key=lambda k: k['%s KLD' % gas], reverse=True)
         worst_per_gas = sorted(information_gain_results, key=lambda k: k['%s KLD' % gas])
