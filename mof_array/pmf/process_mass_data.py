@@ -386,12 +386,12 @@ def save_array_pmf_data(gas_names, list_of_arrays, create_bins_results, bin_comp
             pmfs_to_save = [row['%s' % ' '.join(array)] for row in bin_compositions_results if '%s bin' % gas in row.keys()]
             pdfs_to_save = len(comps_to_save) * np.array(pmfs_to_save)
 
-        filename = "saved_data/%s/%s_%s.csv" % (data_directory, ' '.join(array), str(gas))
-        pdf_data = np.column_stack((comps_to_save, pdfs_to_save))
-        with open(filename,'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter="\t")
-            for line in pdf_data:
-                writer.writerow(line)
+            filename = "saved_data/%s/%s_%s.csv" % (data_directory, ' '.join(array), str(gas))
+            pdf_data = np.column_stack((comps_to_save, pdfs_to_save))
+            with open(filename,'w', newline='') as csvfile:
+                writer = csv.writer(csvfile, delimiter="\t")
+                for line in pdf_data:
+                    writer.writerow(line)
 
 def save_raw_pmf_data(calculate_pmf_results):
     """Saves pmf and mole fraction data for each gas/MOF array combination
