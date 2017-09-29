@@ -448,7 +448,7 @@ def choose_best_arrays(gas_names, number_mofs, information_gain_results):
     else:
         for each_array in information_gain_results:
             each_array_temp = each_array.copy()
-            each_array_temp.update({'joint_KLD' : each_array['%s KLD' % gas[0]], 'num_MOFs' : len(each_array['mof array'])})
+            each_array_temp.update({'joint_KLD' : each_array['%s KLD' % gas_names[0]], 'num_MOFs' : len(each_array['mof array'])})
             ranked_by_product.append(each_array_temp)
 
     # Sort results from highest to lowest KLD values
