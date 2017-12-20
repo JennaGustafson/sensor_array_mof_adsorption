@@ -23,7 +23,7 @@ echo start_time: `date`
 # dependencies
 module purge
 module load python/3.5.1
-source ~/venv/mof_sensor_array_ads/bin/activate
+source ~/venv/your_virtual_env_name_here/bin/activate
 
 cd $PBS_O_WORKDIR
 sjs_launch_workers.sh $PBS_NUM_PPN $stay_alive
