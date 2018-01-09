@@ -206,14 +206,13 @@ def compound_probability(mof_array, labeled_experimental_mass_mofs, calculate_pm
             # Creates list of pmf values for a MOF/exp combination
             if key in point.keys():
                 mof_pmf.append(point['PMF_%s' % str(round(mof_mass,2))])
-        # Save list as numpy array for joint prob calculation
-        mof_pmf = np.array(mof_pmf)
 
         # Joint prob, multiply pmf values elementwise
         if compound_pmfs is not None:
-            compound_pmfs *= mof_pmf
+            compound_pmfs = [x*y for x,y in zip(compound_pmfs, mof_pmf)]
         else:
             compound_pmfs = mof_pmf
+
     # Normalize joint probability, sum of all points is 1
     normalized_compound_pmfs = [ number / sum(compound_pmfs) for number in compound_pmfs ]
     return(normalized_compound_pmfs)
