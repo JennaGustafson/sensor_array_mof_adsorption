@@ -214,7 +214,8 @@ def compound_probability(mof_array, labeled_experimental_mass_mofs, calculate_pm
             compound_pmfs = mof_pmf
 
     # Normalize joint probability, sum of all points is 1
-    normalized_compound_pmfs = [ number / sum(compound_pmfs) for number in compound_pmfs ]
+    normalize_factor = sum(compound_pmfs)
+    normalized_compound_pmfs = [ number / normalize_factor for number in compound_pmfs ]
     return(normalized_compound_pmfs)
 
 def array_pmf(gas_names, number_mofs, mof_names, calculate_pmf_results, experimental_mass_mofs):
