@@ -167,7 +167,8 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, std
                 probs_lower = ss.truncnorm.cdf(float(mass) * (1 - mrange), a, b, loc = my_mean, scale = my_std)
                 probs.append(probs_upper - probs_lower)
 
-            norm_probs = [(i / sum(probs)) for i in probs]
+            sum_probs = sum(probs)
+            norm_probs = [(i / sum_probs) for i in probs]
 
             # Update dictionary with pmf for each MOF, key specified by experimental mass
             if mof_temp_dict == []:
