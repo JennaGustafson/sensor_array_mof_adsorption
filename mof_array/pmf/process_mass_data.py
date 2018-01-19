@@ -167,19 +167,20 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, std
                 probs_lower = ss.truncnorm.cdf(float(mass) * (1 - mrange), a, b, loc = my_mean, scale = my_std)
                 probs.append(probs_upper - probs_lower)
 
-            norm_probs = [(i / sum(probs)) for i in probs]
+            sum_probs = sum(probs)
+            norm_probs = [(i / sum_probs) for i in probs]
 
             # Update dictionary with pmf for each MOF, key specified by experimental mass
             if mof_temp_dict == []:
                 for index in range(len(norm_probs)):
                     mof_temp_dict = all_results_temp[index].copy()
-                    mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
+                    mof_temp_dict.update({ 'PMF' : norm_probs[index] })
                     new_temp_dict.extend([mof_temp_dict])
                 mass_temp_dict = new_temp_dict
             else:
                 for index in range(len(norm_probs)):
                     mof_temp_dict = mass_temp_dict[index].copy()
-                    mof_temp_dict.update({ 'PMF_%s' % str(round(mof_mass, 2)) : norm_probs[index] })
+                    mof_temp_dict.update({ 'PMF' : norm_probs[index] })
                     new_temp_dict.extend([mof_temp_dict])
                 mass_temp_dict = new_temp_dict
 
@@ -187,35 +188,27 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, std
 
     return(pmf_results)
 
-def compound_probability(mof_array, labeled_experimental_mass_mofs, calculate_pmf_results):
+def compound_probability(mof_array, calculate_pmf_results):
     """Combines and normalizes pmfs for a mof array and gas combination, used in method 'array_pmf'
 
     Keyword arguments:
     mof_array -- list of mofs in array
-    labeled_experimental_mass_mofs -- list of dictionaries with each experimental mof & mass
     calculate_pmf_results -- list of dictionaries including mof, mixture, probability
     """
     compound_pmfs = None
     for mof in mof_array:
-        # Call the experimental mass for one mof and experiment, labeled index here
-        # Take [0] to retrieve the mass as a float (from a list with one element)
-        mof_mass = [ row['Mass'] for row in labeled_experimental_mass_mofs if row['MOF'] == mof ][0]
-        key = 'PMF_%s' % str(round(mof_mass,2))
-        mof_pmf = []
-        for point in calculate_pmf_results:
-            # Creates list of pmf values for a MOF/exp combination
-            if key in point.keys():
-                mof_pmf.append(point['PMF_%s' % str(round(mof_mass,2))])
-        # Save list as numpy array for joint prob calculation
-        mof_pmf = np.array(mof_pmf)
+        # Creates list of pmf values for a MOF
+        mof_pmf = [ row['PMF'] for row in calculate_pmf_results if row['MOF'] == mof ]
 
         # Joint prob, multiply pmf values elementwise
         if compound_pmfs is not None:
-            compound_pmfs *= mof_pmf
+            compound_pmfs = [x*y for x,y in zip(compound_pmfs, mof_pmf)]
         else:
             compound_pmfs = mof_pmf
+
     # Normalize joint probability, sum of all points is 1
-    normalized_compound_pmfs = [ number / sum(compound_pmfs) for number in compound_pmfs ]
+    normalize_factor = sum(compound_pmfs)
+    normalized_compound_pmfs = [ number / normalize_factor for number in compound_pmfs ]
     return(normalized_compound_pmfs)
 
 def array_pmf(gas_names, number_mofs, mof_names, calculate_pmf_results, experimental_mass_mofs):
@@ -238,22 +231,16 @@ def array_pmf(gas_names, number_mofs, mof_names, calculate_pmf_results, experime
     # save list of dictionaries for 1 MOF to have list of all gas mole fractions
     array_temp_dict = [row for row in calculate_pmf_results if row['MOF'] == mof_names[0]]
 
-    for mof in experimental_mass_mofs:
-        for number in range(len(mof['Mass'])):
-            temp_mof_name = str(mof['MOF']) + '_%s' % (number + 1)
-            labeled_experimental_mass_mofs.append({'MOF': temp_mof_name, 'Mass': mof['Mass'][number]})
-            experimental_mof_list.append(temp_mof_name)
-
     # Creates list of MOF arrays, all combinations from min to max number of MOFs
     while num_mofs <= max(number_mofs):
-        mof_array_list.extend(list(combinations(experimental_mof_list, num_mofs)))
+        mof_array_list.extend(list(combinations(mof_names, num_mofs)))
         num_mofs += 1
 
     # Nested loops take all combinations of array/gas/experiment
     for mof_array in mof_array_list:
     # Calls outside function to calculate joint probability
-        normalized_compound_pmfs = compound_probability(mof_array, labeled_experimental_mass_mofs,
-                                                        calculate_pmf_results)
+        normalized_compound_pmfs = compound_probability(mof_array, calculate_pmf_results)
+
         if mof_array == mof_array_list[0]:
             # First array, set up dict with keys for each array and gas, specifying pmfs and comps
             for index in range(len(array_temp_dict)):
@@ -268,7 +255,7 @@ def array_pmf(gas_names, number_mofs, mof_names, calculate_pmf_results, experime
                 array_dict.update({'%s' % ' '.join(mof_array) : normalized_compound_pmfs[index]})
                 array_pmf[index] = array_dict
 
-    return(array_pmf, labeled_experimental_mass_mofs, mof_array_list)
+    return(array_pmf, mof_array_list)
 
 def create_bins(mofs_list, calculate_pmf_results, gases, num_bins):
     """Creates bins for all gases, ranging from the lowest to highest mole fractions for each.
