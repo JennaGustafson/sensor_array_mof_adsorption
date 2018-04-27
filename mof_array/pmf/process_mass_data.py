@@ -6,6 +6,7 @@ Additionally, the best MOF arrays for detecting each gas are reported,
 according to the highest information gain.
 """
 import os
+import sys
 from math import isnan, log
 import csv
 from random import random
@@ -237,6 +238,7 @@ def array_pmf(gas_names, number_mofs, mof_names, calculate_pmf_results, experime
         num_mofs += 1
 
     # Nested loops take all combinations of array/gas/experiment
+    count = 0
     for mof_array in mof_array_list:
     # Calls outside function to calculate joint probability
         normalized_compound_pmfs = compound_probability(mof_array, calculate_pmf_results)
@@ -251,9 +253,7 @@ def array_pmf(gas_names, number_mofs, mof_names, calculate_pmf_results, experime
         else:
             # Update dictionary with pmf list for each array
             for index in range(len(array_temp_dict)):
-                array_dict = array_pmf[index].copy()
-                array_dict.update({'%s' % ' '.join(mof_array) : normalized_compound_pmfs[index]})
-                array_pmf[index] = array_dict
+                array_pmf[index]['%s' % ' '.join(mof_array)] = normalized_compound_pmfs[index]
 
     return(array_pmf, mof_array_list)
 
