@@ -157,7 +157,7 @@ def calculate_pmf(experimental_mass_results, import_data_results, mofs_list, std
         for mof_mass in experimental_mass_data:
             # Sets up the truncated distribution parameters
             myclip_a, myclip_b = 0, float(max(all_masses)) * (1 + mrange)
-            my_mean, my_std = float(mof_mass), float(stdev)
+            my_mean, my_std = float(mof_mass), float(stdev) * float(mof_mass)
             a, b = (myclip_a - my_mean) / my_std, (myclip_b - my_mean) / my_std
 
             new_temp_dict = []
