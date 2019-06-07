@@ -373,14 +373,14 @@ def save_array_pmf_data(gas_names, list_of_arrays, create_bins_results, bin_comp
             pmfs_to_save = [row['%s' % ' '.join(array)] for row in bin_compositions_results if '%s bin' % gas in row.keys()]
             pdfs_to_save = len(comps_to_save) * np.array(pmfs_to_save)
 
-            filename = "saved_data/%s/%s_%s.csv" % (data_directory, ' '.join(array), str(gas))
+            filename = "saved_data/%s/%s_%s.csv" % (data_directory, len(array), str(gas))
             pdf_data = np.column_stack((comps_to_save, pdfs_to_save))
             with open(filename,'w', newline='') as csvfile:
                 writer = csv.writer(csvfile, delimiter="\t")
                 for line in pdf_data:
                     writer.writerow(line)
 
-def save_raw_pmf_data(calculate_pmf_results):
+def save_raw_pmf_data(calculate_pmf_results, stdev, mrange, num_mofs):
     """Saves pmf and mole fraction data for each gas/MOF array combination
 
     Keyword arguments:
@@ -388,7 +388,7 @@ def save_raw_pmf_data(calculate_pmf_results):
     """
     csv_name = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
     data_frame = pd.DataFrame(calculate_pmf_results)
-    data_frame.to_csv('saved_raw_pmfs/%s.csv' % (csv_name), sep='\t')
+    data_frame.to_csv('saved_raw_pmfs/%s_mofs_%s_stdev_%s_mrange_%s.csv' % (num_mofs, stdev, mrange, csv_name), sep='\t')
 
 def information_gain(gas_names, list_of_arrays, bin_compositions_results, create_bins_results):
     """Calculates the Kullback-Liebler Divergence of a MOF array with each gas component.
