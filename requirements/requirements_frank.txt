@@ -1,9 +1,0 @@
-git+https://github.com/JennaGustafson/raspa2.git@sensor_array_mof_adsorption
-numpy
-scipy
-pyyaml
-
-## for PITT HPC integration
-redis
-git+https://github.com/paulboone/rq.git@handle_sigterms
-git+https://github.com/paulboone/sam-subjobserver.git
